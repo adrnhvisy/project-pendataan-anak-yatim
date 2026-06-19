@@ -4,17 +4,40 @@ Sistem Informasi Pendataan Anak Yatim adalah sebuah platform digital yang diranc
 
 ---
 
-## 🛠️ Teknologi & Framework yang Digunakan
+## 🛠️ Teknologi, Framework, dan Package yang Digunakan
 
-Proyek ini dibangun menggunakan kombinasi teknologi modern untuk memastikan performa, keamanan, dan kemudahan pengembangan:
+Proyek ini dibangun menggunakan kombinasi teknologi modern dan beberapa *package* tambahan untuk mempercepat proses pengembangan, mengatur hak akses, dan memastikan keamanan sistem. Berikut adalah rincian alat yang digunakan dan telah terinstal di dalam proyek:
 
-1. **Backend Framework**: 🚀 Laravel (Versi 10.x / PHP 8.2) atau CodeIgniter 4.
-2. **Database**: 🗄️ MySQL / MariaDB untuk penyimpanan data relasional.
-3. **Frontend UI**: 🎨 Bootstrap 5 / Tailwind CSS dikombinasikan dengan AdminLTE atau Stisla Template untuk Dashboard Admin.
-4. **Tools Tambahan**:
-    - Git & GitHub untuk manajemen repositori kode.
-    - Composer untuk manajemen _dependency_ PHP.
-    - DomPDF / TCPDF untuk fitur cetak laporan PDF.
+### 1. Core Framework & Database
+- **Laravel (Versi 10.x / PHP 8.2)**: Kerangka kerja (*framework*) utama di sisi *backend* yang mengatur alur logika aplikasi, rute (*routing*), dan interaksi dengan *database*.
+- **MySQL / MariaDB**: Sistem manajemen basis data relasional (RDBMS) untuk menyimpan seluruh data sistem secara terstruktur.
+- **Composer**: Manajer dependensi untuk bahasa pemrograman PHP. *Tool* ini digunakan untuk menginisialisasi proyek Laravel (`composer create-project`) dan mengelola seluruh pustaka pihak ketiga.
+
+### 2. Pustaka (Package) Utama yang Telah Diinstal
+Berdasarkan konfigurasi proyek, sistem ini mengandalkan dua *package* utama untuk mengatur pintu masuk dan hak akses pengguna:
+
+- **Laravel Breeze (dengan antarmuka Blade)**: 
+  *Package* resmi dari Laravel yang digunakan untuk membangun fondasi autentikasi pengguna secara instan (*login, register, logout, session*). Pemasangan *package* ini (`breeze:install blade`) secara otomatis menyiapkan antarmuka pengguna berbasis **Tailwind CSS** dan struktur *templating* **Blade**.
+- **Spatie Laravel Permission**: 
+  *Package* pihak ketiga yang khusus diinstal untuk menangani sistem **Role-Based Access Control (RBAC)**. Alat ini memudahkan pengelolaan berbagai peran pengguna (Superadmin, Kesra, Kecamatan, Pendamping) beserta izin akses (hak untuk menambah, memvalidasi, atau menghapus data) langsung melalui *database*.
+
+### 3. Tools Pendukung Lainnya
+- **Git & GitHub**: Digunakan untuk manajemen repositori kode (melacak versi dan perubahan file).
+
+### 4. Pustaka Ekspor/Impor Data (Pelaporan)
+- **Laravel Excel (Maatwebsite)**: 📊 Pustaka khusus untuk mengekspor data dari *database* ke format `.xlsx` atau `.csv`, serta mengimpor sekumpulan data dari *file* Excel langsung ke dalam sistem.
+- **Laravel DomPDF (Barryvdh)**: 📄 Pustaka untuk men-*generate* tampilan halaman web (HTML/Blade) menjadi dokumen PDF yang siap cetak atau diunduh.
+
+### 🚀 Langkah Instalasi Tambahan
+
+Untuk menginstal alat pembuat PDF dan Excel tersebut, jalankan perintah ini di terminal:
+
+```bash
+# Menginstal pustaka untuk fitur Excel
+composer require maatwebsite/excel
+
+# Menginstal pustaka untuk fitur cetak PDF
+composer require barryvdh/laravel-dompdf
 
 ---
 
@@ -177,6 +200,7 @@ Mencatat aktivitas log pengguna di dalam sistem untuk kebutuhan pemantauan dan k
 2. **Validasi Tahap 1**: 🔍 **Akun Kecamatan** memeriksa data yang masuk di wilayahnya. Jika berkas sesuai, status diubah menjadi `Disetujui Kecamatan`. Jika tidak, status diubah menjadi `Ditolak` disertai catatan perbaikan.
 3. **Validasi Tahap 2 & Sinkronisasi**: 📑 **Kesra** melakukan verifikasi akhir terhadap data yang disetujui kecamatan untuk mengubah status menjadi `Disetujui Kesra`. Data inilah yang sah menjadi penerima program bantuan.
 4. **Penyaluran Bantuan**: 🎁 **Kesra** membuat program bantuan di tabel `bantuan`, lalu menghubungkan anak-anak yatim yang lolos verifikasi ke dalam tabel `penerima_bantuan`.
+
 
 ## Agentic Development
 
