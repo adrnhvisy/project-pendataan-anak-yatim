@@ -9,7 +9,7 @@ Sistem Informasi Pendataan Anak Yatim adalah sebuah platform digital yang diranc
 Proyek ini dibangun menggunakan kombinasi teknologi modern dan beberapa *package* tambahan untuk mempercepat proses pengembangan, mengatur hak akses, dan memastikan keamanan sistem. Berikut adalah rincian alat yang digunakan dan telah terinstal di dalam proyek:
 
 ### 1. Core Framework & Database
-- **Laravel (Versi 10.x / PHP 8.2)**: Kerangka kerja (*framework*) utama di sisi *backend* yang mengatur alur logika aplikasi, rute (*routing*), dan interaksi dengan *database*.
+- **Laravel (Versi 13.x / PHP 8.3)**: Kerangka kerja (*framework*) utama di sisi *backend* yang mengatur alur logika aplikasi, rute (*routing*), dan interaksi dengan *database*.
 - **MySQL / MariaDB**: Sistem manajemen basis data relasional (RDBMS) untuk menyimpan seluruh data sistem secara terstruktur.
 - **Composer**: Manajer dependensi untuk bahasa pemrograman PHP. *Tool* ini digunakan untuk menginisialisasi proyek Laravel (`composer create-project`) dan mengelola seluruh pustaka pihak ketiga.
 
@@ -53,6 +53,28 @@ Sistem ini menerapkan _Role-Based Access Control_ (RBAC) yang membagi pengguna k
 | 4   | **Pendamping (Kelurahan)**       | Tingkat Kelurahan | 📝 Melakukan input data awal anak yatim langsung dari lapangan.<br>📸 Mengunggah berkas pendukung (Foto, KK, Akta Kelahiran).<br>🔄 Melakukan pembaruan (update) jika ada perubahan status anak (misal: usia melewati batas, pindah domisili). |
 
 ---
+
+## 🔐 Hak Akses & Visibilitas Data (Data Scoping)
+
+Sistem ini menerapkan pembatasan visibilitas data (*Row-Level Security*) untuk memastikan setiap pengguna hanya dapat memantau dan memvalidasi data anak yatim sesuai dengan wilayah wewenangnya. Berikut adalah aturan sistemnya:
+
+### 1. Tingkat Kesra (Top Level)
+- **Cakupan Akses**: Seluruh data kabupaten/kota.
+- **Tampilan Antarmuka**: Terdapat *dropdown filter* pencarian untuk **Kecamatan** dan **Kelurahan**.
+- **Logika Kueri (Query)**: Secara *default* dapat membaca semua baris di tabel `anak`. Jika *filter* dipilih, sistem akan memfilter berdasarkan `kecamatan_id` atau `kelurahan_id`.
+
+### 2. Tingkat Kecamatan (Middle Level)
+- **Cakupan Akses**: Terkunci khusus untuk data yang berada di kecamatannya saja.
+- **Tampilan Antarmuka**: Hanya terdapat *dropdown filter* untuk **Kelurahan** (opsi yang muncul hanya kelurahan yang berada di bawah naungan kecamatan tersebut).
+- **Logika Kueri (Query)**: Sistem selalu menyisipkan filter wajib `WHERE kecamatan_id = [ID_Kecamatan_User]` di setiap pencarian atau ekspor data.
+
+### 3. Tingkat Pendamping / Kelurahan (Bottom Level)
+- **Cakupan Akses**: Terkunci absolut hanya untuk kelurahannya sendiri.
+- **Tampilan Antarmuka**: Tidak ada *filter* pencarian wilayah sama sekali.
+- **Logika Kueri (Query)**: Sistem mengunci data secara ketat dengan `WHERE kelurahan_id = [ID_Kelurahan_User]`. Akun pendamping tidak akan bisa mengintip atau mengubah data dari kelurahan tetangga.
+
+---
+
 
 ## 🗄️ Rancangan Struktur Tabel Database
 

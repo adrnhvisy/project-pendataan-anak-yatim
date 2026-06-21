@@ -1,19 +1,40 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['name', 'email', 'password', 'role', 'kelurahan_id'])]
+#[Fillable([
+    'name', 'email', 'password', 
+    'provinsi_id', 'kabupaten_id', 'kecamatan_id', 'kelurahan_id', 
+    'is_active'
+])]
 class User extends Authenticatable {
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles, SoftDeletes; // Tambahkan SoftDeletes
+
     protected $table = 'users';
     protected $hidden = ['password', 'remember_token'];
-    protected function casts(): array { return ['email_verified_at' => 'datetime', 'password' => 'hashed']; }
+    
+    protected function casts(): array { 
+        return [
+            'email_verified_at' => 'datetime', 
+            'password' => 'hashed',
+            'is_active' => 'boolean'
+        ]; 
+    }
+
+    // Relasi Wilayah
+    public function provinsi() { return $this->belongsTo(Provinsi::class); }
+    public function kabupaten() { return $this->belongsTo(Kabupaten::class); }
+    public function kecamatan() { return $this->belongsTo(Kecamatan::class); }
     public function kelurahan() { return $this->belongsTo(Kelurahan::class); }
+
+    // Relasi Lainnya
     public function anak_didaftarkan() { return $this->hasMany(Anak::class, 'created_by'); }
     public function histori_dibuat() { return $this->hasMany(StatusHistori::class, 'created_by'); }
     public function audit_logs() { return $this->hasMany(AuditLog::class); }

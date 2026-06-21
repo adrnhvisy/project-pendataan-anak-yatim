@@ -8,14 +8,24 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            // Pertahankan 'name' agar Laravel Breeze tidak error
+            $table->string('name'); 
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['superadmin', 'kesra', 'kecamatan', 'pendamping'])->default('pendamping');
+
+            // Wilayah kerja untuk batasan hak akses melihat data anak
+            $table->foreignId('provinsi_id')->nullable()->constrained('provinsi')->nullOnDelete();
+            $table->foreignId('kabupaten_id')->nullable()->constrained('kabupaten')->nullOnDelete();
+            $table->foreignId('kecamatan_id')->nullable()->constrained('kecamatan')->nullOnDelete();
             $table->foreignId('kelurahan_id')->nullable()->constrained('kelurahan')->nullOnDelete();
+
+            // Status akun agar bisa dinonaktifkan tanpa dihapus
+            $table->boolean('is_active')->default(true)->index();
+
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes(); // Menambahkan fitur hapus sementara
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -33,6 +43,7 @@ return new class extends Migration {
             $table->integer('last_activity')->index();
         });
     }
+
     public function down(): void {
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
