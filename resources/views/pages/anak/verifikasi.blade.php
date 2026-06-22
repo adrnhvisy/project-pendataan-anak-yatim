@@ -24,7 +24,7 @@
                                 @csrf
                                 <a href="{{ route('anak.show', $item->id) }}"
                                     class="text-indigo-600 hover:underline mr-3">Detail</a>
-                                @role('superadmin | kesra')
+                                @role('kesra')
                                     <button type="submit"
                                         class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">
                                         Setujui
