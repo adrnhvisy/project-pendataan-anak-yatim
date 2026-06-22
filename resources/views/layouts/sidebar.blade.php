@@ -1,7 +1,13 @@
 <aside class="w-64 bg-white border-r border-gray-100 min-h-screen hidden md:block">
     <div class="h-full px-3 py-4 overflow-y-auto">
         <div class="flex items-center justify-center mb-8 mt-2">
-            <span class="text-xl font-bold text-gray-800">Sistem Anak Yatim</span>
+            <span class="text-xl font-bold text-gray-800 text-center">
+                {{ $pengaturan_web['nama_aplikasi'] ?? 'Sistem Anak Yatim' }}
+            </span>
+
+            <div class="mt-4 text-xs text-center text-gray-500">
+                Hubungi Kami: {{ $pengaturan_web['nomor_kontak'] ?? '-' }}
+            </div>
         </div>
 
         <ul class="space-y-2 font-medium">
@@ -24,11 +30,9 @@
                 <span class="text-xs font-bold text-gray-400 uppercase">Menu Superadmin</span>
             </div>
 
-            <!-- Manajemen User -->
             <li x-data="{ open: false }">
                 <button @click="open = !open"
                     class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100">
-                    <!-- SVG Icon Manajemen User -->
                     <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"
                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
                         <path
@@ -45,17 +49,15 @@
                     <li><a href="{{ route('superadmin.users.index') }}"
                             class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100">Daftar
                             Pengguna</a></li>
-                    <li><a href="#"
+                    <li><a href="{{ route('superadmin.roles.index') }}"
                             class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100">Role
                             & Hak Akses</a></li>
                 </ul>
             </li>
 
-            <!-- Master Data -->
             <li x-data="{ open: false }">
                 <button @click="open = !open"
                     class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100">
-                    <!-- SVG Icon Master Data -->
                     <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"
                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 20">
                         <path
@@ -69,20 +71,18 @@
                     </svg>
                 </button>
                 <ul x-show="open" style="display: none;" class="py-2 space-y-2">
-                    <li><a href="#"
+                    <li><a href="{{ route('superadmin.wilayah.index') }}"
                             class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100">Data
                             Wilayah</a></li>
-                    <li><a href="#"
+                    <li><a href="{{ route('superadmin.dokumen.index') }}"
                             class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100">Kategori
                             Dokumen</a></li>
                 </ul>
             </li>
 
-            <!-- Pengaturan -->
             <li x-data="{ open: false }">
                 <button @click="open = !open"
                     class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100">
-                    <!-- SVG Icon Pengaturan -->
                     <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"
                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                         <path
@@ -105,6 +105,39 @@
                 </ul>
             </li>
             @endrole
+
+            @role('kecamatan')
+            <div class="pt-4 pb-2">
+                <span class="text-xs font-bold text-gray-400 uppercase">Menu Kecamatan</span>
+            </div>
+
+            <li>
+                <a href="{{ route('anak.index') }}"
+                    class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                    <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"
+                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 19">
+                        <path
+                            d="M14.5 0A3.987 3.987 0 0 0 11 2.1a4.977 4.977 0 0 1 3.9 5.858A3.989 3.989 0 1 0 14.5 0ZM9 13h2a4 4 0 0 1 4 4v2H5v-2a4 4 0 0 1 4-4Z" />
+                        <path
+                            d="M5 19h10v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2ZM5 7a5.008 5.008 0 0 1 4-4.9 3.988 3.988 0 1 0-3.9 5.859A4.974 4.974 0 0 1 5 7Zm5 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm5-1h-.424a5.016 5.016 0 0 1-1.942 2.232A6.007 6.007 0 0 1 17 17h2a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5ZM5.424 9H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h2a6.007 6.007 0 0 1 4.366-5.768A5.016 5.016 0 0 1 5.424 9Z" />
+                    </svg>
+                    <span class="flex-1 ms-3 whitespace-nowrap">Data Anak Yatim</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ route('anak.laporan') }}"
+                    class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                    <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900"
+                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 20">
+                        <path
+                            d="M16 1h-3.278A1.992 1.992 0 0 0 11 0H7a1.993 1.993 0 0 0-1.722 1H2a2 2 0 0 0-2 2v15a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2Zm-3 14H5a1 1 0 0 1 0-2h8a1 1 0 0 1 0 2Zm0-4H5a1 1 0 0 1 0-2h8a1 1 0 0 1 0 2Zm0-4H5a1 1 0 0 1 0-2h8a1 1 0 0 1 0 2Z" />
+                    </svg>
+                    <span class="flex-1 ms-3 whitespace-nowrap">Laporan Data</span>
+                </a>
+            </li>
+            @endrole
+
         </ul>
     </div>
 </aside>

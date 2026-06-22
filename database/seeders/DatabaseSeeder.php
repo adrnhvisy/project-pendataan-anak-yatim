@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             RoleAndUserSeeder::class,
             KategoriDokumenSeeder::class, // Tambahan Baru
             DummyDataSeeder::class,       // Tambahan Baru
+            PengaturanSeeder::class,
         ]);
     }
 }

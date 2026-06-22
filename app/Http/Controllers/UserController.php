@@ -43,5 +43,29 @@ class UserController extends Controller
         return redirect()->route('superadmin.users.index')->with('success', 'Akun berhasil dibuat.');
     }
 
-    // (Metode edit, update, destroy sengaja aku ringkas untuk menghemat ruang, logikanya mirip dengan store namun menggunakan $user->update)
+    public function edit(User $user)
+    {
+        $roles = Role::all();
+        return view('pages.superadmin.users.form', compact('user', 'roles'));
+    }
+
+    public function update(Request $request, User $user)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'role' => 'required|exists:roles,name'
+        ]);
+
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'is_active' => $request->has('is_active'),
+        ]);
+
+        // Update role
+        $user->syncRoles([$request->role]);
+
+        return redirect()->route('superadmin.users.index')->with('success', 'Akun berhasil diperbarui.');
+    }
 }
