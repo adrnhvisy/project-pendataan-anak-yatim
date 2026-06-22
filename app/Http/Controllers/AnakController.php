@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\{Anak, Alamat, OrangTua, StatusHistori};
+use App\Models\{Anak, Alamat, OrangTua, StatusHistori, Wali};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -42,10 +42,15 @@ class AnakController extends Controller
 
     public function store(Request $request)
     {
-        // DB::transaction memastikan semua tabel tersimpan, atau dibatalkan jika ada yang error
-        DB::transaction(function () use ($request) {
+        // Validasi
+        $request->validate([
+            'nama_lengkap' => 'required|string|max:255',
+            'nik' => 'required|unique:anak,nik|digits:16',
+            'kelurahan_id' => 'required|exists:kelurahan,id',
+        ]);
 
-            // 1. Simpan Alamat Terlebih Dahulu
+        DB::transaction(function () use ($request) {
+            // 1. Simpan Alamat
             $alamat = Alamat::create([
                 'alamat_lengkap' => $request->alamat_lengkap,
                 'rt' => $request->rt,
@@ -53,23 +58,24 @@ class AnakController extends Controller
                 'kelurahan_id' => $request->kelurahan_id,
             ]);
 
-            // 2. Simpan Data Anak (Gunakan ID alamat yang baru saja dibuat)
+            // 2. Simpan Anak
             $anak = Anak::create([
                 'no_registrasi' => 'REG-' . date('Y') . '-' . rand(10000, 99999),
                 'nama_lengkap' => $request->nama_lengkap,
                 'nik' => $request->nik,
                 'no_kk' => $request->no_kk,
+                'no_rekening' => $request->no_rekening,
+                'status_anak' => $request->status_anak,
                 'tempat_lahir' => $request->tempat_lahir,
                 'tanggal_lahir' => $request->tanggal_lahir,
                 'jenis_kelamin' => $request->jenis_kelamin,
-                'status_anak' => $request->status_anak,
-                'status_data' => 'Draft', // Status awal selalu Draft
+                'status_data' => 'Draft',
                 'alamat_domisili_id' => $alamat->id,
                 'kelurahan_id' => $request->kelurahan_id,
                 'created_by' => auth()->id(),
             ]);
 
-            // 3. Simpan Data Orang Tua (Ayah / Ibu)
+            // 3. Simpan Ayah
             OrangTua::create([
                 'anak_id' => $anak->id,
                 'jenis_orang_tua' => 'Ayah',
@@ -78,17 +84,36 @@ class AnakController extends Controller
                 'status_hidup' => $request->status_hidup_ayah,
             ]);
 
-            // 4. Catat Histori Awal
+            // 4. Simpan Ibu
+            OrangTua::create([
+                'anak_id' => $anak->id,
+                'jenis_orang_tua' => 'Ibu',
+                'nama' => $request->nama_ibu,
+                'nik' => $request->nik_ibu,
+                'status_hidup' => $request->status_hidup_ibu,
+            ]);
+
+            // 5. Simpan Wali (Hanya jika diisi)
+            if ($request->filled('nama_wali')) {
+                Wali::create([
+                    'anak_id' => $anak->id,
+                    'nama' => $request->nama_wali,
+                    'hubungan_dengan_anak' => $request->hubungan_wali,
+                    'nik' => $request->nik_wali,
+                ]);
+            }
+
+            // 6. Histori
             StatusHistori::create([
                 'anak_id' => $anak->id,
                 'status_anak' => 'Draft',
                 'tanggal' => now(),
-                'keterangan' => 'Pendaftaran data baru',
+                'keterangan' => 'Pendaftaran data anak baru.',
                 'created_by' => auth()->id(),
             ]);
         });
 
-        return redirect()->route('anak.index')->with('success', 'Data anak berhasil ditambahkan!');
+        return redirect()->route('anak.index')->with('success', 'Data anak berhasil disimpan!');
     }
 
     public function edit(Anak $anak)
@@ -235,10 +260,24 @@ class AnakController extends Controller
         return view('pages.anak.laporan', compact('stats'));
     }
 
+    public function destroy(Anak $anak)
+    {
+        // Hentikan proses jika siapa pun mencoba menghapus
+        // Kecuali jika kamu ingin Superadmin boleh menghapus, silakan hapus if ini
+        abort(403, 'Kebijakan Sistem: Data anak tidak dapat dihapus.');
+    }
+
     private function restrictKecamatan()
     {
         if (auth()->user()->hasRole('kecamatan')) {
             abort(403, 'Akses ditolak: Kecamatan hanya bisa melihat data.');
+        }
+    }
+
+    private function restricPenamping()
+    {
+        if (auth()->user()->hasRole('pendamping')) {
+            abort(403, 'Anda tidak memiliki hak akses verifikasi.');
         }
     }
 

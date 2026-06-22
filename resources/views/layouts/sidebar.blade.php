@@ -138,6 +138,24 @@
             </li>
             @endrole
 
+            @role('pendamping')
+                <div class="pt-4 pb-2">
+                    <span class="text-xs font-bold text-gray-400 uppercase">Menu Pendamping</span>
+                </div>
+
+                <li><a href="{{ route('anak.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100">
+                    <span class="ms-3">Data Anak</span>
+                </a></li>
+
+                <li><a href="{{ route('anak.create') }}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100">
+                    <span class="ms-3">Input Data Anak</span>
+                </a></li>
+
+                <li><a href="{{ route('anak.laporan') }}" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100">
+                    <span class="ms-3">Laporan</span>
+                </a></li>
+        @endrole
+
         </ul>
     </div>
 </aside>
