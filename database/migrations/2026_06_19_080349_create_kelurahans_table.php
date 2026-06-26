@@ -10,6 +10,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('kecamatan_id')->constrained('kecamatan')->cascadeOnDelete();
             $table->string('nama_kelurahan');
+            $table->unique(['kecamatan_id', 'nama_kelurahan']);
             $table->char('kode_pos', 5);
             $table->timestamps();
         });

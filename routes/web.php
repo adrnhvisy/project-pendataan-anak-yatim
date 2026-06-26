@@ -1,88 +1,81 @@
 <?php
 
-use App\Http\Controllers\LaporanController;
-use App\Http\Controllers\RolePermissionController;
-use App\Http\Controllers\WilayahController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProfileController;
 
-// Kustom Controller yang sudah kita buat
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\AnakController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\PengaturanController;
-use App\Http\Controllers\AuditLogController;
+// Import Controllers
+use App\Http\Controllers\{DashboardController, ProfileController};
+use App\Http\Controllers\Anak\{AnakController, AnakDokumenController};
+use App\Http\Controllers\Verifikasi\VerifikasiController;
+use App\Http\Controllers\Laporan\LaporanController;
+use App\Http\Controllers\Sistem\AuditLogController;
+use App\Http\Controllers\Master\{UserController, WilayahController, RolePermissionController, PengaturanController};
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
+Route::get('/', function () { return view('welcome'); });
 
-// 1. Halaman Awal (Bawaan Laravel, kita ubah agar otomatis ke halaman login)
-Route::get('/', function () {
-    return redirect()->route('login');
-});
+require __DIR__.'/auth.php';
 
-// 2. RUTE YANG WAJIB LOGIN (Middleware 'auth')
-Route::middleware(['auth'])->group(function () {
-
-    // Rute Dashboard Utama (Bisa diakses semua role yang sudah login)
+Route::middleware(['auth', 'verified'])->group(function () {
+    
+    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // ==========================================
-    // 3. ZONA SUPERADMIN (Hanya boleh diakses role 'superadmin')
-    // ==========================================
-    Route::middleware(['role:superadmin'])->prefix('superadmin')->name('superadmin.')->group(function () {
-
-        // CRUD Manajemen User (URL: /superadmin/users)
-        Route::resource('users', UserController::class);
-
-        // Pengaturan Sistem (URL: /superadmin/pengaturan)
-        Route::get('pengaturan', [PengaturanController::class, 'index'])->name('pengaturan.index');
-        Route::post('pengaturan', [PengaturanController::class, 'update'])->name('pengaturan.update');
-
-        // Audit Log CCTV (URL: /superadmin/audit)
-        Route::get('audit', [AuditLogController::class, 'index'])->name('audit.index');
-
-        // Role & Permission
-        Route::resource('roles', RolePermissionController::class);
-
-        // Master Data Wilayah
-        Route::get('wilayah', [WilayahController::class, 'index'])->name('wilayah.index');
-
-        // Kategori Dokumen
-        Route::get('dokumen', [AnakController::class, 'kategoriDokumen'])->name('dokumen.index');
-    });
-
-    // ==========================================
-    // 4. ZONA MANAJEMEN ANAK YATIM 
-    // (Bisa diakses Pendamping, Kecamatan, Kesra, Superadmin)
-    // ==========================================
-
-    Route::middleware(['role:superadmin|kesra|kecamatan|pendamping'])->group(function () {
-
-        // PENTING: Taruh rute spesifik SEBELUM resource!
-        Route::get('anak/verifikasi', [AnakController::class, 'verifikasiIndex'])->name('anak.verifikasi');
-        Route::post('anak/{anak}/verifikasi', [AnakController::class, 'approve'])->name('anak.approve');
-
-        Route::get('anak/{anak}/dokumen', [AnakController::class, 'dokumen'])->name('anak.dokumen');
-
-        // Laporan
-        Route::get('anak/laporan', [LaporanController::class, 'index'])->name('anak.laporan');
-        Route::get('anak/laporan/export-excel', [LaporanController::class, 'exportExcel'])->name('anak.export.excel');
-        Route::get('anak/laporan/export-pdf', [LaporanController::class, 'exportPdf'])->name('anak.export.pdf');
-
-        Route::resource('anak', AnakController::class);
-    });
-
-    // ==========================================
-    // 5. ZONA PROFILE (Bawaan Breeze)
-    // ==========================================
+    // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
 
-// Memanggil rute login/register bawaan Breeze
-require __DIR__ . '/auth.php';
+    // Anak & Dokumen
+    Route::prefix('anak')->name('anak.')->group(function () {
+        Route::get('/', [AnakController::class, 'index'])->name('index');
+        Route::get('/create', [AnakController::class, 'create'])->name('create');
+        Route::post('/', [AnakController::class, 'store'])->name('store');
+        Route::get('/{anak}', [AnakController::class, 'show'])->name('show');
+        Route::get('/{anak}/edit', [AnakController::class, 'edit'])->name('edit');
+        Route::put('/{anak}', [AnakController::class, 'update'])->name('update');
+        Route::delete('/{anak}', [AnakController::class, 'destroy'])->name('destroy');
+        
+        // Dokumen (Nested)
+        Route::get('/{anak}/dokumen', [AnakDokumenController::class, 'index'])->name('dokumen.index');
+        Route::get('/{anak}/dokumen/upload', [AnakDokumenController::class, 'create'])->name('dokumen.create');
+        Route::post('/{anak}/dokumen', [AnakDokumenController::class, 'store'])->name('dokumen.store');
+        Route::delete('/dokumen/{dokumen}', [AnakDokumenController::class, 'destroy'])->name('dokumen.destroy');
+    });
+
+    // Verifikasi (Role: Admin, Kesra, Kecamatan)
+    Route::middleware('role:superadmin|kesra|kecamatan')->prefix('verifikasi')->name('verifikasi.')->group(function () {
+        Route::get('/', [VerifikasiController::class, 'index'])->name('index');
+        Route::get('/{anak}', [VerifikasiController::class, 'show'])->name('show');
+        Route::post('/{anak}/approve', [VerifikasiController::class, 'approve'])->name('approve');
+        Route::post('/{anak}/reject', [VerifikasiController::class, 'reject'])->name('reject');
+    });
+
+    // Laporan
+    Route::prefix('laporan')->name('laporan.')->group(function () {
+        Route::get('/anak', [LaporanController::class, 'anak'])->name('anak');
+        Route::get('/wilayah', [LaporanController::class, 'wilayah'])->name('wilayah');
+        Route::get('/bantuan', [LaporanController::class, 'bantuan'])->name('bantuan');
+    });
+
+    // Master Data (Role: Superadmin)
+    Route::middleware('role:superadmin')->group(function () {
+        Route::resource('users', UserController::class);
+        Route::resource('wilayah', WilayahController::class);
+        
+        // Roles & Permissions
+        Route::get('/roles', [RolePermissionController::class, 'index'])->name('roles.index');
+        Route::get('/roles/create', [RolePermissionController::class, 'create'])->name('roles.create');
+        Route::post('/roles', [RolePermissionController::class, 'store'])->name('roles.store');
+        Route::get('/roles/{role}/edit', [RolePermissionController::class, 'edit'])->name('roles.edit');
+        Route::put('/roles/{role}', [RolePermissionController::class, 'update'])->name('roles.update');
+        Route::delete('/roles/{role}', [RolePermissionController::class, 'destroy'])->name('roles.destroy');
+        
+        // Pengaturan
+        Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('pengaturan.index');
+        Route::put('/pengaturan', [PengaturanController::class, 'update'])->name('pengaturan.update');
+    });
+
+    // Sistem (Role: Superadmin)
+    Route::middleware('role:superadmin')->prefix('sistem')->name('sistem.')->group(function () {
+        Route::get('/audit-log', [AuditLogController::class, 'index'])->name('audit.index');
+    });
+});

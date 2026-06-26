@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'is_active'
 ])]
 class User extends Authenticatable {
-    use HasFactory, Notifiable, HasRoles, SoftDeletes; // Tambahkan SoftDeletes
+    use HasFactory, Notifiable, HasRoles, SoftDeletes; 
 
     protected $table = 'users';
     protected $hidden = ['password', 'remember_token'];
@@ -35,7 +35,8 @@ class User extends Authenticatable {
     public function kelurahan() { return $this->belongsTo(Kelurahan::class); }
 
     // Relasi Lainnya
-    public function anak_didaftarkan() { return $this->hasMany(Anak::class, 'created_by'); }
-    public function histori_dibuat() { return $this->hasMany(StatusHistori::class, 'created_by'); }
-    public function audit_logs() { return $this->hasMany(AuditLog::class); }
+    public function anakDidaftarkan() { return $this->hasMany(Anak::class, 'created_by'); }
+    public function historiDibuat() { return $this->hasMany(StatusHistori::class, 'created_by'); }
+    public function auditLogs() { return $this->hasMany(AuditLog::class); }
+    public function dokumenDiverifikasi() { return $this->hasMany(DokumenAnak::class, 'verified_by'); }
 }

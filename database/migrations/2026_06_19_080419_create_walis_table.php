@@ -10,7 +10,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('anak_id')->constrained('anak')->cascadeOnDelete();
             $table->string('nama');
-            $table->char('nik', 16);
+            $table->char('nik',16)->nullable()->index();
             $table->string('hubungan_dengan_anak');
             $table->string('pekerjaan');
             $table->foreignId('alamat_id')->constrained('alamat')->restrictOnDelete();

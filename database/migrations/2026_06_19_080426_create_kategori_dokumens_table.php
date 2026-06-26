@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('kategori_dokumen', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_dokumen');
+            $table->string('nama_dokumen')->unique();
             $table->boolean('is_wajib')->default(true);
             $table->timestamps();
         });

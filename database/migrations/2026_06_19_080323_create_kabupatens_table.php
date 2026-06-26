@@ -5,15 +5,18 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    public function up(): void {
+    public function up(): void
+    {
         Schema::create('kabupaten', function (Blueprint $table) {
             $table->id();
             $table->foreignId('provinsi_id')->constrained('provinsi')->cascadeOnDelete();
             $table->string('nama_kabupaten');
+            $table->unique(['provinsi_id','nama_kabupaten']);
             $table->timestamps();
         });
     }
-    public function down(): void {
+    public function down(): void
+    {
         Schema::dropIfExists('kabupaten');
     }
 };

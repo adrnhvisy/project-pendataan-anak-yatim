@@ -8,4 +8,5 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 class Provinsi extends Model {
     protected $table = 'provinsi';
     public function kabupaten() { return $this->hasMany(Kabupaten::class); }
+    public function users(){return $this->hasMany(User::class);}
 }

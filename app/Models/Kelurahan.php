@@ -11,4 +11,5 @@ class Kelurahan extends Model {
     public function users() { return $this->hasMany(User::class); }
     public function alamat() { return $this->hasMany(Alamat::class); }
     public function anak() { return $this->hasMany(Anak::class); }
+    public function provinsi(){return $this->hasOneThrough(Provinsi::class,Kecamatan::class);}
 }

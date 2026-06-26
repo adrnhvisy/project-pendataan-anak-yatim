@@ -12,10 +12,10 @@ class RoleAndUserSeeder extends Seeder
     public function run(): void
     {
         // 1. Membuat Role Spatie (Perbaikan role yang duplikat)
-        Role::create(['name' => 'superadmin']);
-        Role::create(['name' => 'kesra']);
-        Role::create(['name' => 'kecamatan']);
-        Role::create(['name' => 'pendamping']);
+        Role::firstOrCreate(['name' => 'superadmin']);
+        Role::firstOrCreate(['name' => 'kesra']);
+        Role::firstOrCreate(['name' => 'kecamatan']);
+        Role::firstOrCreate(['name' => 'pendamping']);
 
         // 2. Akun Superadmin
         $superadmin = User::create([

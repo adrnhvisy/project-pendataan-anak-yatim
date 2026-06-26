@@ -1,59 +1,32 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-bold text-gray-800">Edit Data Anak: {{ $anak->nama_lengkap }}</h2>
+        <div class="flex items-center space-x-2">
+            <a href="{{ route('anak.index') }}" class="text-gray-500 hover:text-gray-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            </a>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                {{ __('Edit Data Anak: ') }} {{ $anak->nama_lengkap }}
+            </h2>
+        </div>
     </x-slot>
 
-    <div class="max-w-4xl mx-auto">
-        <div class="p-6 bg-white shadow-sm rounded-xl border border-gray-100">
-            <form action="{{ route('anak.update', $anak->id) }}" method="POST">
-                @csrf
-                @method('PUT') <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="col-span-full">
-                        <h3 class="font-bold text-lg mb-4 text-gray-700">Biodata Anak</h3>
-                    </div>
+    <div class="py-12">
+        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white shadow-sm sm:rounded-lg">
+                <form action="{{ route('anak.update', $anak->id) }}" method="POST" class="p-6 space-y-8">
+                    @csrf
+                    @method('PUT')
                     
-                    <div>
-                        <x-input-label for="nama_lengkap" value="Nama Lengkap" />
-                        <x-text-input id="nama_lengkap" name="nama_lengkap" type="text" value="{{ old('nama_lengkap', $anak->nama_lengkap) }}" class="block w-full mt-1" required />
-                    </div>
-
-                    <div>
-                        <x-input-label for="nik" value="NIK" />
-                        <x-text-input id="nik" name="nik" type="text" value="{{ old('nik', $anak->nik) }}" class="block w-full mt-1" required />
-                    </div>
-
-                    <div class="col-span-full mt-4">
-                        <h3 class="font-bold text-lg mb-4 text-gray-700">Alamat</h3>
-                    </div>
+                    @include('pages.anak.partials.form', ['anak' => $anak])
                     
-                    <div class="col-span-full">
-                        <x-input-label for="alamat_lengkap" value="Alamat Lengkap" />
-                        <x-text-input id="alamat_lengkap" name="alamat_lengkap" type="text" value="{{ old('alamat_lengkap', $anak->alamat_domisili->alamat_lengkap) }}" class="block w-full mt-1" required />
+                    <div class="flex justify-end pt-6 border-t border-gray-200">
+                        <a href="{{ route('anak.index') }}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none mr-3">Batal</a>
+                        <button type="submit" class="bg-indigo-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Perbarui Data
+                        </button>
                     </div>
-
-                    <div class="col-span-full mt-4">
-                        <h3 class="font-bold text-lg mb-4 text-gray-700">Data Ayah</h3>
-                    </div>
-                    
-                    <div>
-                        <x-input-label for="nama_ayah" value="Nama Ayah" />
-                        <x-text-input id="nama_ayah" name="nama_ayah" type="text" value="{{ old('nama_ayah', $anak->orang_tua->where('jenis_orang_tua', 'Ayah')->first()?->nama) }}" class="block w-full mt-1" />
-                    </div>
-                    
-                    <div>
-                        <x-input-label for="status_hidup_ayah" value="Status Ayah" />
-                        <select name="status_hidup_ayah" class="block w-full mt-1 border-gray-300 rounded-md">
-                            <option value="Hidup" {{ $anak->orang_tua->where('jenis_orang_tua', 'Ayah')->first()?->status_hidup == 'Hidup' ? 'selected' : '' }}>Hidup</option>
-                            <option value="Meninggal" {{ $anak->orang_tua->where('jenis_orang_tua', 'Ayah')->first()?->status_hidup == 'Meninggal' ? 'selected' : '' }}>Meninggal</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="flex justify-end pt-6 mt-6 border-t">
-                    <a href="{{ route('anak.index') }}" class="mr-4 px-4 py-2 text-gray-600">Batal</a>
-                    <x-primary-button>Update Data</x-primary-button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 </x-app-layout>

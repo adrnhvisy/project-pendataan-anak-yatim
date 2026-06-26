@@ -1,81 +1,30 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-bold text-gray-800">Pendaftaran Anak Baru</h2>
+        <div class="flex items-center space-x-2">
+            <a href="{{ route('anak.index') }}" class="text-gray-500 hover:text-gray-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            </a>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                {{ __('Pendaftaran Data Anak Baru') }}
+            </h2>
+        </div>
     </x-slot>
 
-    <div class="max-w-4xl mx-auto py-6" x-data="{ tab: 'biodata' }">
-        <div class="flex space-x-4 mb-6 border-b">
-            <button @click="tab = 'biodata'" :class="tab === 'biodata' ? 'border-b-2 border-blue-600 text-blue-600' : ''" class="px-4 py-2 font-medium">1. Biodata</button>
-            <button @click="tab = 'keluarga'" :class="tab === 'keluarga' ? 'border-b-2 border-blue-600 text-blue-600' : ''" class="px-4 py-2 font-medium">2. Keluarga</button>
-            <button @click="tab = 'dokumen'" :class="tab === 'dokumen' ? 'border-b-2 border-blue-600 text-blue-600' : ''" class="px-4 py-2 font-medium">3. Dokumen</button>
+    <div class="py-12">
+        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white shadow-sm sm:rounded-lg">
+                <form action="{{ route('anak.store') }}" method="POST" class="p-6 space-y-8">
+                    @csrf
+                    @include('pages.anak.partials.form')
+                    
+                    <div class="flex justify-end pt-6 border-t border-gray-200">
+                        <a href="{{ route('anak.index') }}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none mr-3">Batal</a>
+                        <button type="submit" class="bg-indigo-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Simpan Pendaftaran
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-
-        <form action="{{ route('anak.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
-            @csrf
-
-            <div x-show="tab === 'biodata'" class="p-6 bg-white shadow rounded-xl">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <x-text-input name="nama_lengkap" placeholder="Nama Lengkap" required />
-                    <x-text-input name="nik" placeholder="NIK" required />
-                    <x-text-input name="no_kk" placeholder="No KK" required />
-                    <x-text-input name="no_rekening" placeholder="No Rekening" />
-                    <x-text-input name="tempat_lahir" placeholder="Tempat Lahir" required />
-                    <x-text-input name="tanggal_lahir" type="date" required />
-                    <select name="jenis_kelamin" class="border-gray-300 rounded-md">
-                        <option value="Laki-laki">Laki-laki</option>
-                        <option value="Perempuan">Perempuan</option>
-                    </select>
-                    <select name="status_anak" class="border-gray-300 rounded-md">
-                        <option value="Yatim">Yatim</option>
-                        <option value="Piatu">Piatu</option>
-                        <option value="Yatim Piatu">Yatim Piatu</option>
-                    </select>
-                </div>
-            </div>
-
-            <div x-show="tab === 'keluarga'" class="p-6 bg-white shadow rounded-xl">
-                <h3 class="font-bold mb-4">Data Domisili</h3>
-                <div class="grid grid-cols-3 gap-4 mb-6">
-                    <div class="col-span-3"><x-text-input name="alamat_lengkap" placeholder="Alamat Lengkap" class="w-full" required /></div>
-                    <x-text-input name="rt" placeholder="RT" />
-                    <x-text-input name="rw" placeholder="RW" />
-                    <select name="kelurahan_id" class="border-gray-300 rounded-md">
-                        @foreach($kelurahans as $kel)<option value="{{ $kel->id }}">{{ $kel->nama_kelurahan }}</option>@endforeach
-                    </select>
-                </div>
-
-                <div class="grid grid-cols-2 gap-6">
-                    <div>
-                        <h4 class="font-bold mb-2">Data Ayah</h4>
-                        <x-text-input name="nama_ayah" placeholder="Nama Ayah" class="w-full mb-2" required />
-                        <x-text-input name="nik_ayah" placeholder="NIK Ayah" class="w-full mb-2" />
-                        <select name="status_hidup_ayah" class="w-full border-gray-300 rounded-md"><option value="Hidup">Hidup</option><option value="Meninggal">Meninggal</option></select>
-                    </div>
-                    <div>
-                        <h4 class="font-bold mb-2">Data Ibu</h4>
-                        <x-text-input name="nama_ibu" placeholder="Nama Ibu" class="w-full mb-2" required />
-                        <x-text-input name="nik_ibu" placeholder="NIK Ibu" class="w-full mb-2" />
-                        <select name="status_hidup_ibu" class="w-full border-gray-300 rounded-md"><option value="Hidup">Hidup</option><option value="Meninggal">Meninggal</option></select>
-                    </div>
-                </div>
-            </div>
-
-            <div x-show="tab === 'dokumen'" class="p-6 bg-white shadow rounded-xl">
-                <h3 class="font-bold mb-4">Upload Dokumen Pendukung</h3>
-                <div class="space-y-4">
-                    <div>
-                        <x-input-label value="Upload Kartu Keluarga (KK)" />
-                        <input type="file" name="file_kk" class="block w-full text-sm text-gray-500 border rounded-lg p-2">
-                    </div>
-                    <div>
-                        <x-input-label value="Upload KTP (Jika Ada)" />
-                        <input type="file" name="file_ktp" class="block w-full text-sm text-gray-500 border rounded-lg p-2">
-                    </div>
-                </div>
-                <div class="flex justify-end mt-6">
-                    <x-primary-button>Simpan Semua Data</x-primary-button>
-                </div>
-            </div>
-        </form>
     </div>
 </x-app-layout>

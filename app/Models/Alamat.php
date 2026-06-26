@@ -9,6 +9,6 @@ class Alamat extends Model {
     protected $table = 'alamat';
     public function kelurahan() { return $this->belongsTo(Kelurahan::class); }
     public function anak() { return $this->hasMany(Anak::class, 'alamat_domisili_id'); }
-    public function orang_tua() { return $this->hasMany(OrangTua::class); }
+    public function orangTua() { return $this->hasMany(OrangTua::class); }
     public function wali() { return $this->hasMany(Wali::class); }
 }
