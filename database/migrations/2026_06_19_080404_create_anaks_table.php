@@ -17,7 +17,6 @@ return new class extends Migration {
             $table->enum('jenis_kelamin', ['Laki-laki', 'Perempuan']);
             $table->enum('status_anak', ['Yatim', 'Piatu', 'Yatim Piatu']);
             $table->string('no_rekening', 30)->nullable();
-            $table->string('foto_path')->nullable();
             $table->text('catatan')->nullable();
             $table->enum('status_data', ['Draft', 'Pending', 'Disetujui', 'Ditolak'])->default('Draft')->index();
             $table->foreignId('alamat_domisili_id')->constrained('alamat')->restrictOnDelete();

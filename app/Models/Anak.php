@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 
 #[Fillable([
     'no_registrasi', 'nama_lengkap', 'no_kk', 'nik', 'tempat_lahir', 
-    'tanggal_lahir', 'jenis_kelamin', 'status_anak', 'no_rekening', 'foto_path', 'catatan',
+    'tanggal_lahir', 'jenis_kelamin', 'status_anak', 'no_rekening', 'catatan',
     'status_data', 'alamat_domisili_id', 'created_by'
 ])]
 class Anak extends Model {

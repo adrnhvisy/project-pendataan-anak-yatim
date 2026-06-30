@@ -17,6 +17,12 @@ class PengaturanSeeder extends Seeder
                 'keterangan' => 'Nama website yang akan muncul di halaman atas.'
             ],
             [
+                'key' => 'nama_panjang_aplikasi',
+                'value' => 'Sistem Administrasi Hibah Bantuan Anak Yatim',
+                'tipe' => 'text',
+                'keterangan' => 'Nama panjang aplikasi untuk header atau footer'
+            ],
+            [
                 'key' => 'alamat_kantor',
                 'value' => 'Jl. Komplek Perkantoran Bhakti Praja, Pangkalan Kerinci',
                 'tipe' => 'text',

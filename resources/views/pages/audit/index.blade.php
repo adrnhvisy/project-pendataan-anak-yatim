@@ -1,85 +1,49 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Audit Log Sistem') }}
-            </h2>
-        </div>
+        <h2 class="font-semibold text-xl text-[#0b1c30] leading-tight">
+            {{ __('Audit Logs (Log Sistem)') }}
+        </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12 bg-[#f8f9ff] min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                
-                <!-- Table -->
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-[#e5eeff]">
+                <div class="px-6 py-4 border-b border-[#e5eeff] bg-[#f8f9ff]">
+                    <p class="text-sm text-[#434655]">Log rekam jejak aktivitas kritis di dalam sistem, khusus untuk pemantauan Superadmin.</p>
+                </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left text-gray-500">
-                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b">
+                    <table class="w-full text-sm text-left text-[#434655]">
+                        <thead class="text-xs text-[#434655] uppercase bg-[#f1f5f9]">
                             <tr>
-                                <th class="px-6 py-3 w-48">Waktu (WIB)</th>
-                                <th class="px-6 py-3">Pengguna</th>
-                                <th class="px-6 py-3">Modul / ID</th>
-                                <th class="px-6 py-3 text-center">Aksi</th>
-                                <th class="px-6 py-3">Deskripsi Aktivitas</th>
-                                <th class="px-6 py-3">IP Address</th>
+                                <th scope="col" class="px-6 py-3">Waktu</th>
+                                <th scope="col" class="px-6 py-3">Pengguna</th>
+                                <th scope="col" class="px-6 py-3">Modul</th>
+                                <th scope="col" class="px-6 py-3">Aksi</th>
+                                <th scope="col" class="px-6 py-3">Deskripsi</th>
+                                <th scope="col" class="px-6 py-3">IP Address</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200">
+                        <tbody>
                             @forelse ($logs as $log)
-                                <tr class="bg-white hover:bg-gray-50 transition-colors">
-                                    <td class="px-6 py-4 whitespace-nowrap text-gray-900 text-xs">
-                                        <div class="font-medium">{{ $log->created_at->translatedFormat('d M Y') }}</div>
-                                        <div class="text-gray-500">{{ $log->created_at->format('H:i:s') }}</div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="font-medium text-gray-900">{{ $log->user->name ?? 'Sistem / Guest' }}</div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="font-semibold text-gray-700">{{ $log->module }}</div>
-                                        @if($log->record_id)
-                                            <div class="text-xs text-gray-400">ID: {{ $log->record_id }}</div>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 text-center">
-                                        @php
-                                            $actionColor = match($log->action) {
-                                                'CREATE' => 'bg-green-100 text-green-800',
-                                                'UPDATE' => 'bg-yellow-100 text-yellow-800 border-yellow-200',
-                                                'DELETE' => 'bg-red-100 text-red-800 border-red-200',
-                                                'UPLOAD' => 'bg-blue-100 text-blue-800 border-blue-200',
-                                                'LOGIN'  => 'bg-purple-100 text-purple-800 border-purple-200',
-                                                default  => 'bg-gray-100 text-gray-800'
-                                            };
-                                        @endphp
-                                        <span class="px-2 py-1 text-xs font-bold rounded {{ $actionColor }} border border-transparent">
-                                            {{ $log->action }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-gray-700">
-                                        {{ $log->description }}
-                                    </td>
-                                    <td class="px-6 py-4 text-xs font-mono text-gray-500">
-                                        {{ $log->ip_address ?? '-' }}
-                                    </td>
+                                <tr class="bg-white border-b border-[#e5eeff] even:bg-[#F1F5F9]">
+                                    <td class="px-6 py-4 whitespace-nowrap text-xs">{{ $log->created_at->format('d/m/Y H:i:s') }}</td>
+                                    <td class="px-6 py-4 font-medium text-[#0b1c30]">{{ $log->user->name ?? 'System' }} <br><span class="text-xs font-normal text-gray-500">{{ $log->user->email ?? '' }}</span></td>
+                                    <td class="px-6 py-4"><span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded border border-blue-100">{{ $log->module }}</span></td>
+                                    <td class="px-6 py-4 font-bold">{{ $log->action }}</td>
+                                    <td class="px-6 py-4">{{ $log->description }}</td>
+                                    <td class="px-6 py-4 text-xs font-mono text-gray-500">{{ $log->ip_address ?? '-' }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-                                        Belum ada catatan log aktivitas dalam sistem.
-                                    </td>
+                                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">Log sistem kosong.</td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
-
-                <!-- Pagination -->
-                @if($logs->hasPages())
-                    <div class="p-4 border-t border-gray-200">
-                        {{ $logs->links() }}
-                    </div>
-                @endif
-
+                <div class="mt-4 p-4">
+                    {{ $logs->links() }}
+                </div>
             </div>
         </div>
     </div>

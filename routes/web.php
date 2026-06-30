@@ -1,81 +1,102 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
-// Import Controllers
-use App\Http\Controllers\{DashboardController, ProfileController};
-use App\Http\Controllers\Anak\{AnakController, AnakDokumenController};
-use App\Http\Controllers\Verifikasi\VerifikasiController;
-use App\Http\Controllers\Laporan\LaporanController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Sistem\AuditLogController;
-use App\Http\Controllers\Master\{UserController, WilayahController, RolePermissionController, PengaturanController};
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Anak\AnakController;
+use App\Http\Controllers\Anak\AnakDokumenController;
+use App\Http\Controllers\Verifikasi\VerifikasiController;
+use App\Http\Controllers\Master\UserController;
+use App\Http\Controllers\Master\RolePermissionController;
+use App\Http\Controllers\Master\PengaturanController;
+use App\Http\Controllers\Laporan\LaporanController;
 
-Route::get('/', function () { return view('welcome'); });
-
-require __DIR__.'/auth.php';
+Route::get('/', function () {
+    return redirect()->route('login');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    
+
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Profile
+    // Profil User
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Anak & Dokumen
+    // ==========================================
+    // DATA ANAK YATIM & DOKUMEN (Pendamping & Kesra)
+    // ==========================================
     Route::prefix('anak')->name('anak.')->group(function () {
-        Route::get('/', [AnakController::class, 'index'])->name('index');
-        Route::get('/create', [AnakController::class, 'create'])->name('create');
-        Route::post('/', [AnakController::class, 'store'])->name('store');
-        Route::get('/{anak}', [AnakController::class, 'show'])->name('show');
-        Route::get('/{anak}/edit', [AnakController::class, 'edit'])->name('edit');
-        Route::put('/{anak}', [AnakController::class, 'update'])->name('update');
-        Route::delete('/{anak}', [AnakController::class, 'destroy'])->name('destroy');
-        
-        // Dokumen (Nested)
+        // Dokumen
         Route::get('/{anak}/dokumen', [AnakDokumenController::class, 'index'])->name('dokumen.index');
-        Route::get('/{anak}/dokumen/upload', [AnakDokumenController::class, 'create'])->name('dokumen.create');
         Route::post('/{anak}/dokumen', [AnakDokumenController::class, 'store'])->name('dokumen.store');
-        Route::delete('/dokumen/{dokumen}', [AnakDokumenController::class, 'destroy'])->name('dokumen.destroy');
-    });
+        Route::delete('/{anak}/dokumen/{dokumen}', [AnakDokumenController::class, 'destroy'])->name('dokumen.destroy');
 
-    // Verifikasi (Role: Admin, Kesra, Kecamatan)
-    Route::middleware('role:superadmin|kesra|kecamatan')->prefix('verifikasi')->name('verifikasi.')->group(function () {
+        // Submit Verifikasi (Ubah status Draft -> Pending)
+        Route::post('/{anak}/submit', [AnakController::class, 'submit'])->name('submit')->middleware('role:pendamping');
+    });
+    // Resource Anak
+    Route::resource('anak', AnakController::class)->except(['destroy']); // Zero Deletion policy
+
+    // ==========================================
+    // VERIFIKASI (Khusus Kesra)
+    // ==========================================
+    Route::middleware(['role:kesra'])->prefix('verifikasi')->name('verifikasi.')->group(function () {
         Route::get('/', [VerifikasiController::class, 'index'])->name('index');
-        Route::get('/{anak}', [VerifikasiController::class, 'show'])->name('show');
+        Route::post('/{anak}/reject', [VerifikasiController::class, 'reject'])->name('processReject');
         Route::post('/{anak}/approve', [VerifikasiController::class, 'approve'])->name('approve');
-        Route::post('/{anak}/reject', [VerifikasiController::class, 'reject'])->name('reject');
+        Route::patch('/dokumen/{dokumen}/verify', [VerifikasiController::class, 'verifyDokumen'])->name('dokumen.verify');
     });
 
-    // Laporan
+    // ==========================================
+    // LAPORAN (Kesra & Pendamping)
+    // ==========================================
     Route::prefix('laporan')->name('laporan.')->group(function () {
+        Route::post('/export', [LaporanController::class, 'export'])->name('export');
+        Route::get('/', [LaporanController::class, 'index'])->name('index');
         Route::get('/anak', [LaporanController::class, 'anak'])->name('anak');
         Route::get('/wilayah', [LaporanController::class, 'wilayah'])->name('wilayah');
-        Route::get('/bantuan', [LaporanController::class, 'bantuan'])->name('bantuan');
+        // Route::get('/print', [LaporanController::class, 'print'])->name('print');
     });
 
-    // Master Data (Role: Superadmin)
-    Route::middleware('role:superadmin')->group(function () {
-        Route::resource('users', UserController::class);
-        Route::resource('wilayah', WilayahController::class);
-        
-        // Roles & Permissions
-        Route::get('/roles', [RolePermissionController::class, 'index'])->name('roles.index');
-        Route::get('/roles/create', [RolePermissionController::class, 'create'])->name('roles.create');
-        Route::post('/roles', [RolePermissionController::class, 'store'])->name('roles.store');
-        Route::get('/roles/{role}/edit', [RolePermissionController::class, 'edit'])->name('roles.edit');
-        Route::put('/roles/{role}', [RolePermissionController::class, 'update'])->name('roles.update');
-        Route::delete('/roles/{role}', [RolePermissionController::class, 'destroy'])->name('roles.destroy');
-        
-        // Pengaturan
+    // ==========================================
+    // MASTER DATA & PENGATURAN (Khusus Superadmin)
+    // ==========================================
+    Route::middleware(['role:superadmin'])->group(function () {
+
+        // Manajemen Pengguna
+        Route::resource('users', UserController::class)->names([
+            'index'     => 'users.index',
+            'create'    => 'users.create',
+            'store'     => 'users.store',
+            'edit'      => 'users.edit',
+            'update'    => 'users.update',
+            'destroy'   => 'users.destroy',
+        ]);
+
+
+        // Manajemen Roles & Permissions
+        Route::resource('roles', RolePermissionController::class)->except(['show']);
+        Route::get('roles/{role}/permissions', [RolePermissionController::class, 'permissions'])->name('roles.permissions');
+        Route::put('roles/{role}/permissions', [RolePermissionController::class, 'updatePermissions'])->name('roles.permissions.update');
+
+        // Tambahkan di dalam route group superadmin
+        Route::resource('wilayah', \App\Http\Controllers\Master\WilayahController::class);
+
+        // Pengaturan Sistem
         Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('pengaturan.index');
-        Route::put('/pengaturan', [PengaturanController::class, 'update'])->name('pengaturan.update');
-    });
+        Route::put('/pengaturan/{pengaturan}', [PengaturanController::class, 'update'])->name('pengaturan.update');
 
-    // Sistem (Role: Superadmin)
-    Route::middleware('role:superadmin')->prefix('sistem')->name('sistem.')->group(function () {
-        Route::get('/audit-log', [AuditLogController::class, 'index'])->name('audit.index');
+        Route::delete('/kategori-dokumen/{kategoriDokumen}', [\App\Http\Controllers\Master\KategoriDokumenController::class, 'destroy'])->name('kategori-dokumen.destroy');
+        // Route::resource('kategori-dokumen', \App\Http\Controllers\Master\KategoriDokumenController::class)->except(['destroy']);
+        Route::resource('kategori-dokumen', \App\Http\Controllers\Master\KategoriDokumenController::class)->parameters(['kategori-dokumen' => 'kategoriDokumen']);
+
+        // Audit Logs
+        Route::get('/audit', [AuditLogController::class, 'index'])->name('audit.index');
     });
 });
+
+require __DIR__ . '/auth.php';

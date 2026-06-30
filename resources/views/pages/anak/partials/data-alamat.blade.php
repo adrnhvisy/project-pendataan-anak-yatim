@@ -1,45 +1,26 @@
-<div class="pt-8">
-    <div>
-        <h3 class="text-lg leading-6 font-medium text-gray-900">2. Alamat Domisili</h3>
-        <p class="mt-1 text-sm text-gray-500">Alamat lengkap tempat anak tinggal saat ini.</p>
+<div class="bg-white shadow-sm sm:rounded-xl border border-[#e5eeff] overflow-hidden">
+    <div class="px-6 py-4 border-b border-[#e5eeff] bg-[#f8f9ff]">
+        <h3 class="text-lg font-bold text-[#0b1c30]">2. Lokasi Domisili</h3>
+        <p class="text-xs text-[#737686] mt-1">Data lokasi otomatis terikat dengan wilayah kerja Anda.</p>
     </div>
-    
-    <div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-        <div class="sm:col-span-6">
-            <label for="alamat_lengkap" class="block text-sm font-medium text-gray-700">Alamat Lengkap (Jalan / Gang / No Rumah) *</label>
-            <div class="mt-1">
-                <textarea id="alamat_lengkap" name="alamat_lengkap" rows="3" required class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md">{{ old('alamat_lengkap', $anak->alamatDomisili->alamat_lengkap ?? '') }}</textarea>
-                @error('alamat_lengkap') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
-            </div>
+    <div class="p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="md:col-span-4">
+            <x-input-label for="alamat_lengkap" value="Alamat Lengkap" />
+            <x-text-input id="alamat_lengkap" name="alamat_lengkap" type="text" class="mt-1 block w-full border-[#E2E8F0] focus:border-[#004ac6]" value="{{ old('alamat_lengkap', $anak->alamatDomisili->alamat_lengkap ?? '') }}" required />
         </div>
-
-        <div class="sm:col-span-2">
-            <label for="rt" class="block text-sm font-medium text-gray-700">RT *</label>
-            <div class="mt-1">
-                <input type="text" name="rt" id="rt" value="{{ old('rt', $anak->alamatDomisili->rt ?? '') }}" required maxlength="3" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md placeholder-gray-400" placeholder="001">
-                @error('rt') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
-            </div>
+        <div>
+            <x-input-label for="rt" value="RT" />
+            <x-text-input id="rt" name="rt" type="text" class="mt-1 block w-full border-[#E2E8F0] focus:border-[#004ac6]" value="{{ old('rt', $anak->alamatDomisili->rt ?? '') }}" required />
         </div>
-
-        <div class="sm:col-span-2">
-            <label for="rw" class="block text-sm font-medium text-gray-700">RW *</label>
-            <div class="mt-1">
-                <input type="text" name="rw" id="rw" value="{{ old('rw', $anak->alamatDomisili->rw ?? '') }}" required maxlength="3" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md placeholder-gray-400" placeholder="002">
-                @error('rw') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
-            </div>
+        <div>
+            <x-input-label for="rw" value="RW" />
+            <x-text-input id="rw" name="rw" type="text" class="mt-1 block w-full border-[#E2E8F0] focus:border-[#004ac6]" value="{{ old('rw', $anak->alamatDomisili->rw ?? '') }}" required />
         </div>
-
-        <div class="sm:col-span-2">
-            <label for="kelurahan_id" class="block text-sm font-medium text-gray-700">Kelurahan *</label>
-            <div class="mt-1">
-                <select id="kelurahan_id" name="kelurahan_id" required class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
-                    <option value="">Pilih Kelurahan...</option>
-                    @foreach($kelurahan as $kel)
-                        <option value="{{ $kel->id }}" {{ old('kelurahan_id', $anak->alamatDomisili->kelurahan_id ?? '') == $kel->id ? 'selected' : '' }}>{{ $kel->nama_kelurahan }}</option>
-                    @endforeach
-                </select>
-                @error('kelurahan_id') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
+        <div class="md:col-span-2">
+            <x-input-label value="Kelurahan (Otomatis Wilayah Anda)" />
+            <div class="mt-1 block w-full p-2.5 bg-gray-100 border border-gray-300 rounded-md text-sm text-gray-600 font-medium">
+                {{ auth()->user()->kelurahan->nama_kelurahan ?? 'Kelurahan tidak diatur' }}
             </div>
-        </div>
+            </div>
     </div>
 </div>

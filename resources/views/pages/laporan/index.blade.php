@@ -1,78 +1,106 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Pusat Laporan Sistem') }}
+        <h2 class="font-semibold text-xl text-[#0b1c30] leading-tight">
+            {{ __('Pusat Laporan & Ekspor Data') }}
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-12 bg-[#f8f9ff] min-h-screen">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+
+
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                
-                <!-- Laporan Anak -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg hover:shadow-md transition-shadow border-t-4 border-indigo-500">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-indigo-100 text-indigo-600">
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-lg font-bold text-gray-900">Laporan Data Anak</h3>
-                                <p class="text-sm text-gray-500 mt-1">Detail data anak yatim beserta filter status dan wilayah.</p>
-                            </div>
-                        </div>
-                        <div class="mt-6">
-                            <a href="{{ route('laporan.anak') }}" class="text-indigo-600 hover:text-indigo-900 font-medium text-sm flex items-center">
-                                Buka Laporan 
-                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                            </a>
-                        </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-[#e5eeff] hover:shadow-md transition">
+                    <div class="w-12 h-12 bg-blue-100 text-[#004ac6] rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                            </path>
+                        </svg>
                     </div>
+                    <h3 class="text-lg font-bold text-[#0b1c30] mb-2">Laporan Data Anak</h3>
+                    <p class="text-sm text-[#434655] mb-4">Rekapitulasi seluruh data anak yatim.</p>
+                    <a href="{{ route('laporan.anak') }}"
+                        class="text-sm font-semibold text-[#004ac6] hover:underline">Lihat Laporan &rarr;</a>
                 </div>
 
-                <!-- Laporan Wilayah -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg hover:shadow-md transition-shadow border-t-4 border-green-500">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-green-100 text-green-600">
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-lg font-bold text-gray-900">Rekap per Wilayah</h3>
-                                <p class="text-sm text-gray-500 mt-1">Statistik jumlah anak berdasarkan Kecamatan & Kelurahan.</p>
-                            </div>
-                        </div>
-                        <div class="mt-6">
-                            <a href="{{ route('laporan.wilayah') }}" class="text-green-600 hover:text-green-900 font-medium text-sm flex items-center">
-                                Buka Laporan 
-                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                            </a>
-                        </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-[#e5eeff] hover:shadow-md transition">
+                    <div class="w-12 h-12 bg-green-100 text-green-700 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9">
+                            </path>
+                        </svg>
                     </div>
+                    <h3 class="text-lg font-bold text-[#0b1c30] mb-2">Statistik Wilayah</h3>
+                    <p class="text-sm text-[#434655] mb-4">Agregasi data jumlah anak yatim berdasarkan wilayah.</p>
+                    <a href="{{ route('laporan.wilayah') }}"
+                        class="text-sm font-semibold text-[#004ac6] hover:underline">Lihat Laporan &rarr;</a>
                 </div>
-
-                <!-- Laporan Bantuan -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg hover:shadow-md transition-shadow border-t-4 border-yellow-500">
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-lg font-bold text-gray-900">Penerima Bantuan</h3>
-                                <p class="text-sm text-gray-500 mt-1">Daftar anak yatim yang memenuhi syarat untuk pencairan.</p>
-                            </div>
-                        </div>
-                        <div class="mt-6">
-                            <a href="{{ route('laporan.bantuan') }}" class="text-yellow-600 hover:text-yellow-900 font-medium text-sm flex items-center">
-                                Buka Laporan 
-                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
             </div>
+            @if(session('error'))
+                <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg text-sm">
+                    {{ session('error') }}
+                </div>
+            @endif
+            <form action="{{ route('laporan.export') }}" method="POST" id="exportForm" onsubmit="handleExport(this)"
+                class="bg-white p-6 rounded-xl shadow-sm border border-[#e5eeff]">
+                @csrf
+                <div class="border-b border-gray-100 pb-4 mb-4">
+                    <h3 class="font-bold text-[#0b1c30] text-lg">Export Data</h3>
+                    <p class="text-xs text-gray-500">Pilih kriteria data yang ingin Anda ekspor ke format Excel atau
+                        PDF.</p>
+                </div>
+
+                <div class="space-y-3 mb-6">
+                    <label class="flex items-center space-x-3 cursor-pointer">
+                        <input type="radio" name="filter" value="all" checked
+                            class="text-[#004ac6] focus:ring-[#004ac6]">
+                        <span class="text-sm text-gray-700 font-medium">Export Semua Data</span>
+                    </label>
+                    <label class="flex items-center space-x-3 cursor-pointer">
+                        <input type="radio" name="filter" value="under18" class="text-[#004ac6] focus:ring-[#004ac6]">
+                        <span class="text-sm text-gray-700 font-medium">Export Anak di bawah 18 Tahun</span>
+                    </label>
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="submit" name="type" value="excel"
+                        class="bg-green-600 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-green-700 transition disabled:opacity-50">
+                        Export Excel
+                    </button>
+                    <button type="submit" name="type" value="pdf"
+                        class="bg-red-600 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 transition disabled:opacity-50">
+                        Export PDF
+                    </button>
+                </div>
+            </form>
+
         </div>
     </div>
+
+<script>
+    function handleExport(form) {
+        const buttons = form.querySelectorAll('button[type="submit"]');
+
+        buttons.forEach(btn => {
+            btn.dataset.originalText = btn.innerText;
+            btn.innerText = 'Memproses...';
+        });
+
+        setTimeout(() => {
+            buttons.forEach(btn => {
+                btn.disabled = true;
+            });
+        }, 100);
+
+        setTimeout(() => {
+            buttons.forEach(btn => {
+                btn.disabled = false;
+                btn.innerText = btn.dataset.originalText;
+            });
+        }, 4000);
+    }
+</script>
 </x-app-layout>

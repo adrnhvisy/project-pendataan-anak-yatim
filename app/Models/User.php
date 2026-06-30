@@ -33,8 +33,6 @@ class User extends Authenticatable {
     public function kabupaten() { return $this->belongsTo(Kabupaten::class); }
     public function kecamatan() { return $this->belongsTo(Kecamatan::class); }
     public function kelurahan() { return $this->belongsTo(Kelurahan::class); }
-
-    // Relasi Lainnya
     public function anakDidaftarkan() { return $this->hasMany(Anak::class, 'created_by'); }
     public function historiDibuat() { return $this->hasMany(StatusHistori::class, 'created_by'); }
     public function auditLogs() { return $this->hasMany(AuditLog::class); }

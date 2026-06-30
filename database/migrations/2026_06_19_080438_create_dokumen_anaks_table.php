@@ -13,11 +13,15 @@ return new class extends Migration {
             $table->foreignId('kategori_dok_id')->constrained('kategori_dokumen')->restrictOnDelete();
             $table->unique(['anak_id', 'kategori_dok_id']);
             $table->string('file_path');
-            $table->enum('status_verifikasi', ['Menunggu', 'Valid', 'Tidak Valid'])->default('Menunggu');
+
+            $table->enum('status_verifikasi', ['Pending', 'Valid', 'Tidak Valid'])->default('Pending');
+
             $table->foreignId('verified_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('verified_at')->nullable();
             $table->text('catatan')->nullable();
             $table->timestamps();
+
+            $table->index('status_verifikasi');
         });
     }
     public function down(): void

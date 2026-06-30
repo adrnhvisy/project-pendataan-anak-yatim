@@ -1,70 +1,123 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-[#0b1c30] leading-tight">
             {{ __('Dashboard') }}
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12 bg-[#f8f9ff] min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             
-            <!-- Welcome Banner -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 flex items-center justify-between">
-                    <div>
-                        <h3 class="text-lg font-medium">Selamat datang, <span class="font-bold text-indigo-600">{{ Auth::user()->name }}</span>! 👋</h3>
-                        <p class="text-sm text-gray-500 mt-1">Anda login sebagai {{ Auth::user()->roles->pluck('name')->implode(', ') ?: 'Pengguna' }}. Berikut adalah ringkasan data saat ini.</p>
-                    </div>
-                    <div class="hidden md:block text-right">
-                        <p class="text-sm text-gray-500">{{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}</p>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-[#e5eeff]">
+                    <p class="text-sm font-medium text-[#434655] uppercase tracking-wider">Total Anak</p>
+                    <p class="text-4xl font-bold text-[#004ac6] mt-2">{{ $stats['total'] ?? 0 }}</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-[#e5eeff]">
+                    <p class="text-sm font-medium text-[#434655] uppercase tracking-wider">Draft</p>
+                    <p class="text-4xl font-bold text-gray-600 mt-2">{{ $stats['draft'] ?? 0 }}</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-[#e5eeff]">
+                    <p class="text-sm font-medium text-[#434655] uppercase tracking-wider">Menunggu Verifikasi</p>
+                    <p class="text-4xl font-bold text-yellow-600 mt-2">{{ $stats['pending'] ?? 0 }}</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-[#e5eeff]">
+                    <p class="text-sm font-medium text-[#434655] uppercase tracking-wider">Disetujui</p>
+                    <p class="text-4xl font-bold text-green-600 mt-2">{{ $stats['disetujui'] ?? 0 }}</p>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-[#e5eeff]">
+                <div class="p-6 bg-white border-b border-[#e5eeff]">
+                    <h3 class="text-lg font-bold text-[#0b1c30] mb-4">Data Anak Terbaru</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-[#434655]">
+                            <thead class="text-xs text-[#434655] uppercase bg-[#f1f5f9]">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3">No Registrasi</th>
+                                    <th scope="col" class="px-6 py-3">Nama Lengkap</th>
+                                    <th scope="col" class="px-6 py-3">Kelurahan</th>
+                                    <th scope="col" class="px-6 py-3">Status Anak</th>
+                                    <th scope="col" class="px-6 py-3">Status Data</th>
+                                    <th scope="col" class="px-6 py-3 text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($anakTerbaru as $anak)
+                                    <tr class="bg-white border-b border-[#e5eeff] even:bg-[#F1F5F9]">
+                                        <td class="px-6 py-4 font-medium text-[#0b1c30]">{{ $anak->no_registrasi }}</td>
+                                        <td class="px-6 py-4">{{ $anak->nama_lengkap }}</td>
+                                        <td class="px-6 py-4">{{ $anak->alamatDomisili->kelurahan->nama_kelurahan ?? '-' }}</td>
+                                        <td class="px-6 py-4">{{ $anak->status_anak }}</td>
+                                        <td class="px-6 py-4">
+                                            @php
+                                                $badgeColor = match($anak->status_data) {
+                                                    'Draft' => 'bg-gray-100 text-gray-800',
+                                                    'Pending' => 'bg-yellow-100 text-yellow-800',
+                                                    'Disetujui' => 'bg-green-100 text-green-800',
+                                                    'Ditolak' => 'bg-red-100 text-red-800',
+                                                    default => 'bg-gray-100 text-gray-800'
+                                                };
+                                            @endphp
+                                            <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $badgeColor }}">
+                                                {{ $anak->status_data }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-right">
+                                            <a href="{{ route('anak.show', $anak->id) }}" class="font-medium text-[#004ac6] hover:underline">Detail</a>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                            Tidak ada data anak terbaru.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Statistik Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                
-                <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-indigo-500 hover:shadow-md transition-shadow">
-                    <div class="flex items-center justify-between">
-                        <div class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Data</div>
-                        <svg class="w-6 h-6 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            @role('superadmin')
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-[#e5eeff]">
+                <div class="p-6 bg-white">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-[#0b1c30]">Log Aktivitas Terbaru</h3>
+                        <a href="{{ route('audit.index') }}" class="text-sm text-[#004ac6] hover:underline">Lihat Semua</a>
                     </div>
-                    <div class="mt-2 text-3xl font-bold text-gray-900">{{ $statistics['total'] }}</div>
-                </div>
-
-                <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-gray-400 hover:shadow-md transition-shadow">
-                    <div class="flex items-center justify-between">
-                        <div class="text-sm font-medium text-gray-500 uppercase tracking-wider">Draft</div>
-                        <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-[#434655]">
+                            <thead class="text-xs text-[#434655] uppercase bg-[#f1f5f9]">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3">Waktu</th>
+                                    <th scope="col" class="px-6 py-3">User</th>
+                                    <th scope="col" class="px-6 py-3">Modul</th>
+                                    <th scope="col" class="px-6 py-3">Aksi</th>
+                                    <th scope="col" class="px-6 py-3">Deskripsi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ($auditTerbaru as $log)
+                                    <tr class="bg-white border-b border-[#e5eeff] even:bg-[#F1F5F9]">
+                                        <td class="px-6 py-4 whitespace-nowrap">{{ $log->created_at->format('d/m/Y H:i') }}</td>
+                                        <td class="px-6 py-4">{{ $log->user->name ?? 'System' }}</td>
+                                        <td class="px-6 py-4">{{ $log->module }}</td>
+                                        <td class="px-6 py-4 font-semibold">{{ $log->action }}</td>
+                                        <td class="px-6 py-4">{{ $log->description }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-8 text-center text-gray-500">Tidak ada log aktivitas.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="mt-2 text-3xl font-bold text-gray-900">{{ $statistics['draft'] }}</div>
                 </div>
-
-                <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-yellow-500 hover:shadow-md transition-shadow">
-                    <div class="flex items-center justify-between">
-                        <div class="text-sm font-medium text-gray-500 uppercase tracking-wider">Pending</div>
-                        <svg class="w-6 h-6 text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <div class="mt-2 text-3xl font-bold text-gray-900">{{ $statistics['pending'] }}</div>
-                </div>
-
-                <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-green-500 hover:shadow-md transition-shadow">
-                    <div class="flex items-center justify-between">
-                        <div class="text-sm font-medium text-gray-500 uppercase tracking-wider">Disetujui</div>
-                        <svg class="w-6 h-6 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <div class="mt-2 text-3xl font-bold text-gray-900">{{ $statistics['disetujui'] }}</div>
-                </div>
-
-                <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-red-500 hover:shadow-md transition-shadow">
-                    <div class="flex items-center justify-between">
-                        <div class="text-sm font-medium text-gray-500 uppercase tracking-wider">Ditolak</div>
-                        <svg class="w-6 h-6 text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <div class="mt-2 text-3xl font-bold text-gray-900">{{ $statistics['ditolak'] }}</div>
-                </div>
-
             </div>
+            @endrole
 
         </div>
     </div>

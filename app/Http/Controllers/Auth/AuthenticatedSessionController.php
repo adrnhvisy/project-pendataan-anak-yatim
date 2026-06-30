@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Services\AuditLogService;
+use App\Models\AuditLog; // Menggunakan model langsung
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -12,10 +12,6 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
-    public function __construct(
-        protected AuditLogService $auditLogService
-    ) {}
-
     /**
      * Tampilkan halaman login
      */
@@ -27,10 +23,8 @@ class AuthenticatedSessionController extends Controller
     /**
      * Proses login
      */
-    public function store(
-        LoginRequest $request
-    ): RedirectResponse {
-
+    public function store(LoginRequest $request): RedirectResponse 
+    {
         $request->authenticate();
 
         $user = $request->user();
@@ -42,16 +36,12 @@ class AuthenticatedSessionController extends Controller
         */
 
         if (!$user->is_active) {
-
             Auth::logout();
-
             $request->session()->invalidate();
-
             $request->session()->regenerateToken();
 
             return back()->withErrors([
-                'email' =>
-                'Akun Anda tidak aktif. Hubungi administrator.',
+                'email' => 'Akun Anda tidak aktif. Hubungi administrator.',
             ]);
         }
 
@@ -65,16 +55,18 @@ class AuthenticatedSessionController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Audit Log
+        | Audit Log (Langsung via Model)
         |--------------------------------------------------------------------------
         */
 
-        $this->auditLogService->log(
-            action: 'LOGIN',
-            description: 'User berhasil login',
-            module: 'AUTH',
-            recordId: $user->id
-        );
+        AuditLog::create([
+            'user_id'     => $user->id,
+            'module'      => 'AUTH',
+            'action'      => 'LOGIN',
+            'record_id'   => $user->id,
+            'description' => 'User berhasil login',
+            'ip_address'  => $request->ip()
+        ]);
 
         /*
         |--------------------------------------------------------------------------
@@ -82,28 +74,25 @@ class AuthenticatedSessionController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        return redirect()->intended(
-            route('dashboard')
-        );
+        return redirect()->intended(route('dashboard'));
     }
 
     /**
      * Logout
      */
-    public function destroy(
-        Request $request
-    ): RedirectResponse {
-
+    public function destroy(Request $request): RedirectResponse 
+    {
         $userId = auth()->id();
 
         if ($userId) {
-
-            $this->auditLogService->log(
-                action: 'LOGOUT',
-                description: 'User logout',
-                module: 'AUTH',
-                recordId: $userId
-            );
+            AuditLog::create([
+                'user_id'     => $userId,
+                'module'      => 'AUTH',
+                'action'      => 'LOGOUT',
+                'record_id'   => $userId,
+                'description' => 'User logout',
+                'ip_address'  => $request->ip()
+            ]);
         }
 
         Auth::guard('web')->logout();

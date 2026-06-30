@@ -1,10 +1,12 @@
 <x-app-layout>
-    <x-slot name="header"><h2 class="font-semibold text-xl text-gray-800">Edit Role: {{ $role->name }}</h2></x-slot>
-    <div class="py-12"><div class="max-w-3xl mx-auto sm:px-6 lg:px-8 bg-white p-6 shadow sm:rounded-lg">
-        <form action="{{ route('master.roles.update', $role->id) }}" method="POST">
-            @csrf @method('PUT')
-            @include('pages.roles.form', ['role' => $role])
-            <div class="mt-6 flex justify-end"><button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded">Perbarui Role</button></div>
-        </form>
-    </div></div>
+    <x-slot name="header"><h2 class="font-semibold text-xl text-[#0b1c30]">Edit Role</h2></x-slot>
+    <div class="py-12 bg-[#f8f9ff]">
+        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
+            <form action="{{ route('roles.update', $role->id) }}" method="POST" class="bg-white p-6 rounded-xl border border-[#e5eeff]">
+                @method('PUT')
+                @include('pages.roles.form', ['role' => $role])
+                <button type="submit" class="mt-4 px-4 py-2 bg-[#004ac6] text-white rounded-lg text-sm font-semibold">Perbarui</button>
+            </form>
+        </div>
+    </div>
 </x-app-layout>

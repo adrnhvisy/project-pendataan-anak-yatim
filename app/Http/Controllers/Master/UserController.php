@@ -3,112 +3,156 @@
 namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Master\StoreUserRequest;
-use App\Http\Requests\Master\UpdateUserRequest;
 use App\Models\User;
 use App\Models\Provinsi;
 use App\Models\Kabupaten;
 use App\Models\Kecamatan;
 use App\Models\Kelurahan;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
+use App\Models\AuditLog;
 use Spatie\Permission\Models\Role;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules;
 
 class UserController extends Controller
 {
-    public function index(): View
+    public function index()
     {
-        $users = User::with([
-            'roles',
-            'provinsi',
-            'kabupaten',
-            'kecamatan',
-            'kelurahan'
-        ])
-        ->latest()
-        ->paginate(15);
-
+        $users = User::with(['roles', 'provinsi', 'kabupaten', 'kecamatan', 'kelurahan'])->latest()->paginate(15);
         return view('pages.users.index', compact('users'));
     }
 
-    public function create(): View
+    public function create()
     {
-        return view('pages.users.create', [
-            'roles' => Role::all(),
-            'provinsi' => Provinsi::all(),
-            'kabupaten' => Kabupaten::all(),
-            'kecamatan' => Kecamatan::all(),
-            'kelurahan' => Kelurahan::all(),
-        ]);
+        $roles = Role::all();
+        $provinsi = Provinsi::all();
+        $kabupaten = Kabupaten::all();
+        $kecamatan = Kecamatan::all();
+        $kelurahan = Kelurahan::all();
+
+        return view('pages.users.create', compact('roles', 'provinsi', 'kabupaten', 'kecamatan', 'kelurahan'));
     }
 
-    public function store(StoreUserRequest $request): RedirectResponse
+    public function store(Request $request)
     {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'roles' => 'required|exists:roles,name',
+            'is_active' => 'required|boolean',
+            'provinsi_id' => 'nullable|exists:provinsi,id',
+            'kabupaten_id' => 'nullable|exists:kabupaten,id',
+            'kecamatan_id' => 'nullable|exists:kecamatan,id',
+            'kelurahan_id' => 'nullable|exists:kelurahan,id',
+        ]);
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => bcrypt($request->password),
+            'password' => Hash::make($request->password),
+            'is_active' => $request->is_active,
             'provinsi_id' => $request->provinsi_id,
             'kabupaten_id' => $request->kabupaten_id,
             'kecamatan_id' => $request->kecamatan_id,
             'kelurahan_id' => $request->kelurahan_id,
-            'is_active' => true,
         ]);
 
-        $user->syncRoles($request->roles);
+        $user->assignRole($request->role);
 
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'User berhasil dibuat');
+        AuditLog::create([
+            'user_id' => auth()->id(),
+            'module' => 'User',
+            'action' => 'Create',
+            'record_id' => $user->id,
+            'description' => 'Membuat user baru: ' . $user->email,
+            'ip_address' => $request->ip()
+        ]);
+
+        return redirect()->route('users.index')->with('success', 'Pengguna berhasil ditambahkan.');
     }
 
-    public function show(User $user): View
+    public function show(User $user)
     {
-        $user->load([
-            'roles',
-            'provinsi',
-            'kabupaten',
-            'kecamatan',
-            'kelurahan'
-        ]);
-
+        $user->load(['roles', 'provinsi', 'kabupaten', 'kecamatan', 'kelurahan', 'auditLogs']);
         return view('pages.users.show', compact('user'));
     }
 
-    public function edit(User $user): View
+    public function edit(User $user)
     {
-        return view('pages.users.edit', [
-            'user' => $user,
-            'roles' => Role::all(),
-            'provinsi' => Provinsi::all(),
-            'kabupaten' => Kabupaten::all(),
-            'kecamatan' => Kecamatan::all(),
-            'kelurahan' => Kelurahan::all(),
-        ]);
+        $roles = Role::all();
+        $provinsi = Provinsi::all();
+        $kabupaten = Kabupaten::all();
+        $kecamatan = Kecamatan::all();
+        $kelurahan = Kelurahan::all();
+
+        return view('pages.users.edit', compact('user', 'roles', 'provinsi', 'kabupaten', 'kecamatan', 'kelurahan'));
     }
 
-    public function update(
-        UpdateUserRequest $request,
-        User $user
-    ): RedirectResponse {
+    public function update(Request $request, User $user)
+    {
+        // 1. Validasi
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|lowercase|email|max:255|unique:users,email,' . $user->id,
+            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
+            'roles' => 'required|exists:roles,name',
+            'roles.*' => 'exists:roles,name',
+            'is_active' => 'required|boolean',
+            'provinsi_id' => 'nullable|exists:provinsi,id',
+            'kabupaten_id' => 'nullable|exists:kabupaten,id',
+            'kecamatan_id' => 'nullable|exists:kecamatan,id',
+            'kelurahan_id' => 'nullable|exists:kelurahan,id',
+        ]);
 
-        $user->update($request->validated());
+        // 2. Update data
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'is_active' => $request->is_active,
+            'provinsi_id' => $request->provinsi_id,
+            'kabupaten_id' => $request->kabupaten_id,
+            'kecamatan_id' => $request->kecamatan_id,
+            'kelurahan_id' => $request->kelurahan_id,
+        ]);
 
+        // 3. Update password jika ada
+        if ($request->filled('password')) {
+            $user->update(['password' => Hash::make($request->password)]);
+        }
+
+        // 4. Sync Roles (Gunakan array langsung)
         $user->syncRoles($request->roles);
 
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'User berhasil diperbarui');
+        AuditLog::create([
+            'user_id' => auth()->id(),
+            'module' => 'User',
+            'action' => 'Update',
+            'record_id' => $user->id,
+            'description' => 'Memperbarui data user: ' . $user->email,
+            'ip_address' => $request->ip()
+        ]);
+
+        return redirect()->route('users.index')->with('success', 'Pengguna berhasil diperbarui.');
     }
 
-    public function destroy(
-        User $user
-    ): RedirectResponse {
+    public function destroy(User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'Tidak dapat menghapus akun sendiri.');
+        }
 
-        $user->delete();
+        $user->delete(); // Soft delete as per migration
 
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'User berhasil dihapus');
+        AuditLog::create([
+            'user_id' => auth()->id(),
+            'module' => 'User',
+            'action' => 'Delete',
+            'record_id' => $user->id,
+            'description' => 'Menghapus (soft delete) user: ' . $user->email,
+            'ip_address' => request()->ip()
+        ]);
+
+        return redirect()->route('users.index')->with('success', 'Pengguna berhasil dinonaktifkan / dihapus.');
     }
 }
