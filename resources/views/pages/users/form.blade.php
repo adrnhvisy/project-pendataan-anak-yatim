@@ -3,12 +3,18 @@
         <label class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
         <input type="text" name="name" value="{{ old('name', $user->name ?? '') }}" required
             class="mt-1 block w-full border-gray-300 rounded-md">
+        @error('name')
+            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+        @enderror
     </div>
 
     <div>
         <label class="block text-sm font-medium text-gray-700">Email</label>
         <input type="email" name="email" value="{{ old('email', $user->email ?? '') }}" required
             class="mt-1 block w-full border-gray-300 rounded-md">
+        @error('email')
+            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+        @enderror
     </div>
 
     <div>
@@ -16,13 +22,10 @@
             Password {{ isset($user) ? '(Kosongkan jika tidak diubah)' : '*' }}
         </label>
         <div class="relative">
-            <input type="password" id="password" name="password" {{ isset($user) ? '' : 'required' }}
+            <input type="password" id="password" name="password" {{ isset($user) ? '' : 'required' }} 
                 class="mt-1 block w-full border-gray-300 rounded-md pr-10">
-
-            <!-- Tombol mata -->
             <button type="button" id="togglePassword"
                 class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500">
-                <!-- Icon mata terbuka -->
                 <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -30,7 +33,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
-                <!-- Icon mata tertutup -->
                 <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none"
                     viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -39,19 +41,25 @@
                 </svg>
             </button>
         </div>
+        @error('password')
+            <p class="text-red-500 text-xs mt-1">
+                {{ $message == 'Kolom kata sandi wajib diisi.' ? 'Password wajib diisi' : $message }}
+            </p>
+        @enderror
     </div>
 
-    <!-- Konfirmasi Password -->
     <div>
         <label class="block text-sm font-medium text-gray-700">Konfirmasi Password</label>
         <input type="password" name="password_confirmation" {{ isset($user) ? '' : 'required' }}
             class="mt-1 block w-full border-gray-300 rounded-md">
+        @error('password_confirmation')
+            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+        @enderror
     </div>
 
     <div>
         <label class="block text-sm font-medium text-gray-700">Role</label>
-        <select name="roles" required
-            class="mt-1 block w-full border-gray-300 rounded-md @error('roles') border-red-500 @enderror">
+        <select name="roles" id="roleSelect" required class="mt-1 block w-full border-gray-300 rounded-md">
             <option value="">-- Pilih Role --</option>
             @foreach($roles as $role)
                 <option value="{{ $role->name }}" {{ (isset($user) && $user->hasRole($role->name)) || old('roles') == $role->name ? 'selected' : '' }}>
@@ -62,6 +70,42 @@
         @error('roles')
             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
         @enderror
+    </div>
+
+    <div id="locationFields" class="grid grid-cols-1 gap-6 hidden">
+        <div id="field_kabupaten">
+            <label class="block text-sm font-medium text-gray-700">Kabupaten</label>
+            <select name="kabupaten_id" id="kabSelect" class="mt-1 block w-full border-gray-300 rounded-md">
+                <option value="">-- Pilih Kabupaten --</option>
+                @foreach($kabupaten as $item)
+                    <option value="{{ $item->id }}" {{ old('kabupaten_id', $user->kabupaten_id ?? '') == $item->id ? 'selected' : '' }}>{{ $item->nama_kabupaten }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div id="field_kecamatan" class="hidden">
+            <label class="block text-sm font-medium text-gray-700">Kecamatan</label>
+            <select name="kecamatan_id" id="kecSelect" class="mt-1 block w-full border-gray-300 rounded-md">
+                <option value="">-- Pilih Kecamatan --</option>
+                @foreach($kecamatan as $item)
+                    <option value="{{ $item->id }}" data-parent="{{ $item->kabupaten_id }}" {{ old('kecamatan_id', $user->kecamatan_id ?? '') == $item->id ? 'selected' : '' }}>
+                        {{ $item->nama_kecamatan }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <div id="field_kelurahan" class="hidden">
+            <label class="block text-sm font-medium text-gray-700">Kelurahan</label>
+            <select name="kelurahan_id" id="kelSelect" class="mt-1 block w-full border-gray-300 rounded-md">
+                <option value="">-- Pilih Kelurahan --</option>
+                @foreach($kelurahan as $item)
+                    <option value="{{ $item->id }}" data-parent="{{ $item->kecamatan_id }}" {{ old('kelurahan_id', $user->kelurahan_id ?? '') == $item->id ? 'selected' : '' }}>
+                        {{ $item->nama_kelurahan }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
     </div>
 
     <div class="flex items-center mt-4">
@@ -75,29 +119,84 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Password Toggle
             const passwordInput = document.getElementById('password');
             const togglePassword = document.getElementById('togglePassword');
-            const eyeOpen = document.getElementById('eyeOpen');
-            const eyeClosed = document.getElementById('eyeClosed');
+            togglePassword.addEventListener('click', () => {
+                const isPassword = passwordInput.type === 'password';
+                passwordInput.type = isPassword ? 'text' : 'password';
+                document.getElementById('eyeOpen').classList.toggle('hidden');
+                document.getElementById('eyeClosed').classList.toggle('hidden');
+            });
 
-            togglePassword.addEventListener('click', function () {
-                const isPassword = passwordInput.getAttribute('type') === 'password';
-                passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+            // Cascading Logic
+            const roleSelect = document.getElementById('roleSelect');
+            const kabSelect = document.getElementById('kabSelect');
+            const kecSelect = document.getElementById('kecSelect');
+            const kelSelect = document.getElementById('kelSelect');
 
-                if (isPassword) {
-                    eyeOpen.classList.add('hidden');
-                    eyeClosed.classList.remove('hidden');
-                } else {
-                    eyeOpen.classList.remove('hidden');
-                    eyeClosed.classList.add('hidden');
+            function filterDropdown(source, target, parentAttr) {
+                const parentId = source.value;
+                const options = target.querySelectorAll('option');
+
+                // 1. Jika parent kosong, nonaktifkan dan sembunyikan opsi
+                if (!parentId) {
+                    target.value = "";
+                    target.disabled = true; // Kunci dropdown anak
+                    options.forEach(opt => {
+                        if (opt.value !== "") {
+                            opt.hidden = true;
+                            opt.disabled = true;
+                        }
+                    });
+                    return;
                 }
+
+                // 2. Jika parent ada nilainya, buka kunci dropdown
+                target.disabled = false;
+
+                options.forEach(opt => {
+                    if (opt.value === "") return; // Lewati placeholder
+
+                    // Gunakan HTML attributes 'hidden' & 'disabled' agar stabil di semua browser
+                    if (opt.getAttribute(parentAttr) === parentId) {
+                        opt.hidden = false;
+                        opt.disabled = false;
+                        opt.style.display = ''; // Fallback
+                    } else {
+                        opt.hidden = true;
+                        opt.disabled = true;
+                        opt.style.display = 'none'; // Fallback
+                        if (opt.selected) target.value = "";
+                    }
+                });
+            }
+
+            function updateVisibility() {
+                const role = roleSelect.value;
+                document.getElementById('locationFields').classList.toggle('hidden', role === '');
+                document.getElementById('field_kabupaten').classList.toggle('hidden', role === '');
+                document.getElementById('field_kecamatan').classList.toggle('hidden', !['kecamatan', 'pendamping'].includes(role));
+                document.getElementById('field_kelurahan').classList.toggle('hidden', role !== 'pendamping');
+            }
+
+            // Event Listeners
+            roleSelect.addEventListener('change', updateVisibility);
+
+            kabSelect.addEventListener('change', () => {
+                filterDropdown(kabSelect, kecSelect, 'data-parent');
+                // Jika kabupaten berubah, kelurahan juga harus ikut di-reset
+                filterDropdown(kecSelect, kelSelect, 'data-parent');
             });
 
-            const checkbox = document.getElementById('is_active_checkbox');
-            const label = document.getElementById('is_active_label');
-            checkbox.addEventListener('change', function () {
-                label.textContent = this.checked ? 'Nonaktifkan Akun' : 'Aktifkan Akun';
+            kecSelect.addEventListener('change', () => {
+                filterDropdown(kecSelect, kelSelect, 'data-parent');
             });
+
+            // Init (saat halaman pertama kali dimuat)
+            updateVisibility();
+            filterDropdown(kabSelect, kecSelect, 'data-parent');
+            filterDropdown(kecSelect, kelSelect, 'data-parent');
         });
     </script>
 </div>

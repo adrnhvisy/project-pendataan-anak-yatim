@@ -34,6 +34,13 @@ class PengaturanSeeder extends Seeder
                 'tipe' => 'text',
                 'keterangan' => 'Nomor WhatsApp atau Telepon yang bisa dihubungi.'
             ],
+            [
+                'key' => 'logo_web',
+                'value' => 'logo.png',
+                'tipe' => 'image',
+                'keterangan' => 'Logo untuk tampil di halaman atas.'
+            ],
+
         ];
 
         foreach ($pengaturan as $item) {

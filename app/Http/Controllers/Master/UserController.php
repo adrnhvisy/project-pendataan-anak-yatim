@@ -58,7 +58,7 @@ class UserController extends Controller
             'kelurahan_id' => $request->kelurahan_id,
         ]);
 
-        $user->assignRole($request->role);
+        $user->assignRole($request->roles);
 
         AuditLog::create([
             'user_id' => auth()->id(),

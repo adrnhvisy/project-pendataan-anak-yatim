@@ -32,7 +32,6 @@
                         <x-text-input id="password" class="block w-full pl-10 pr-10 border-[#E2E8F0] rounded-lg focus:border-[#004ac6] focus:ring-[#004ac6]"
                                         type="password"
                                         name="password"
-                                        value="password123"
                                         required autocomplete="current-password" placeholder="••••••••" />
                         
                         <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 flex items-center pr-3">
