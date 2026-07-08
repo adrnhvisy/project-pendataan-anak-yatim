@@ -2,7 +2,8 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-[#0b1c30] leading-tight">Master Wilayah (Kelurahan)</h2>
-            <a href="{{ route('wilayah.create') }}" class="px-4 py-2 bg-[#004ac6] text-white rounded-lg text-sm font-semibold hover:bg-blue-800 transition">
+            <a href="{{ route('wilayah.create') }}"
+                class="px-4 py-2 bg-[#004ac6] text-white rounded-lg text-sm font-semibold hover:bg-blue-800 transition">
                 + Tambah Kelurahan
             </a>
         </div>
@@ -11,9 +12,11 @@
     <div class="py-12 bg-[#f8f9ff] min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             @if(session('success'))
-                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">{{ session('success') }}</div>
+                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
+                    {{ session('success') }}
+                </div>
             @endif
-            
+
             <div class="bg-white shadow-sm sm:rounded-xl border border-[#e5eeff] overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-left text-[#434655]">
@@ -34,10 +37,14 @@
                                     <td class="px-6 py-4">{{ $item->kecamatan->kabupaten->nama_kabupaten ?? '-' }}</td>
                                     <td class="px-6 py-4">{{ $item->kode_pos ?? '-' }}</td>
                                     <td class="px-6 py-4 text-right">
-                                        <a href="{{ route('wilayah.edit', $item->id) }}" class="text-[#004ac6] hover:underline mr-3">Edit</a>
-                                        <form action="{{ route('wilayah.destroy', $item->id) }}" method="POST" class="inline">
+                                        <a href="{{ route('wilayah.edit', $item->id) }}"
+                                            class="text-[#004ac6] hover:underline mr-3">Edit</a>
+
+                                        <form action="{{ route('wilayah.destroy', $item->id) }}" method="POST"
+                                            class="inline form-hapus">
                                             @csrf @method('DELETE')
-                                            <button onclick="return confirm('Yakin hapus?')" class="text-red-600 hover:underline">Hapus</button>
+
+                                            <button type="submit" class="text-red-600 hover:underline">Hapus</button>
                                         </form>
                                     </td>
                                 </tr>

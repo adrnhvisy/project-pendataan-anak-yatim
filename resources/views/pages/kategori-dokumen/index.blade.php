@@ -59,7 +59,7 @@
                                         class="text-[#004ac6] hover:underline font-medium mr-3">Edit</a>
 
                                     <form action="{{ route('kategori-dokumen.destroy', $item->id) }}" method="POST"
-                                        class="inline-block delete-form">
+                                        class="inline-block form-hapus">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
@@ -79,46 +79,4 @@
             </div>
         </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Menggunakan event delegation untuk menangani form
-            document.querySelectorAll('.delete-form').forEach(form => {
-                form.addEventListener('submit', function (e) {
-                    e.preventDefault(); // Hentikan submit langsung
-
-                    const form = this;
-                    const button = form.querySelector('.delete-btn');
-
-                    Swal.fire({
-                        title: 'Hapus Kategori Dokumen?',
-                        text: 'Kategori dokumen yang sudah dihapus tidak dapat dikembalikan. Pastikan data ini memang sudah tidak digunakan.',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#dc2626', // Red-600
-                        cancelButtonColor: '#64748b',  // Slate-500
-                        confirmButtonText: 'Ya, Hapus',
-                        cancelButtonText: 'Batal',
-                        reverseButtons: true
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            // Ubah tombol menjadi mode loading
-                            button.disabled = true;
-                            button.innerHTML = `
-                                <span class="flex items-center justify-center">
-                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                                    </svg>
-                                    Menghapus...
-                                </span>
-                            `;
-
-                            // Submit form secara manual
-                            form.submit();
-                        }
-                    });
-                });
-            });
-        });
-    </script>
 </x-app-layout>

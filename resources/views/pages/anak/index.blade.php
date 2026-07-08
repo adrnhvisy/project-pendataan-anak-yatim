@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h2 class="font-semibold text-xl text-[#0b1c30] leading-tight">
                 {{ __('Data Anak Yatim') }}
             </h2>
@@ -17,15 +17,16 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
             @if(session('success'))
-                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg relative"
+                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg relative mx-4 sm:mx-0"
                     role="alert">
                     <span class="block sm:inline">{{ session('success') }}</span>
                 </div>
             @endif
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-[#e5eeff]">
-                <div class="p-6 border-b border-[#e5eeff]">
-                    <div class="flex justify-between items-center mb-4">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-[#e5eeff] mx-4 sm:mx-0">
+                <div class="p-4 sm:p-6 border-b border-[#e5eeff]">
+                    
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
                         <form method="GET" action="{{ route('anak.index') }}" class="w-full max-w-md">
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -40,36 +41,44 @@
                                     placeholder="Cari NIK atau Nama...">
                             </div>
                         </form>
+                        
+                        <div class="w-full sm:w-auto text-left sm:text-right">
+                            @if (request('search'))
+                                <a href="{{ route('anak.index') }}" class="text-sm text-[#004ac6] hover:underline">
+                                    Reset pencarian
+                                </a>
+                            @endif
+                        </div>
                     </div>
 
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto pb-2">
                         <table class="w-full text-sm text-left text-[#434655]">
                             <thead class="text-xs text-[#434655] uppercase bg-[#f1f5f9]">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3">No</th>
-                                    <th scope="col" class="px-6 py-3">Nama & NIK</th>
-                                    <th scope="col" class="px-6 py-3">Umur</th>
-                                    <th scope="col" class="px-6 py-3">Orang Tua</th>
-                                    <th scope="col" class="px-6 py-3">Status Data</th>
-                                    <th scope="col" class="px-6 py-3 text-right">Aksi</th>
+                                    <th scope="col" class="px-6 py-3 whitespace-nowrap">No</th>
+                                    <th scope="col" class="px-6 py-3 whitespace-nowrap">Nama & NIK</th>
+                                    <th scope="col" class="px-6 py-3 whitespace-nowrap">Umur</th>
+                                    <th scope="col" class="px-6 py-3 whitespace-nowrap">Orang Tua</th>
+                                    <th scope="col" class="px-6 py-3 whitespace-nowrap">Status Data</th>
+                                    <th scope="col" class="px-6 py-3 whitespace-nowrap text-right">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse ($anak as $index => $item)
                                     <tr class="bg-white border-b border-[#e5eeff] even:bg-[#F1F5F9]">
-                                        <td class="px-6 py-4">{{ $anak->firstItem() + $index }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">{{ $anak->firstItem() + $index }}</td>
 
-                                        <td class="px-6 py-4">
+                                        <td class="px-6 py-4 min-w-[200px]">
                                             <div class="font-bold text-[#0b1c30]">{{ $item->nama_lengkap }}</div>
                                             <div class="text-xs text-gray-500">NIK: {{ $item->nik }}</div>
                                         </td>
 
-                                        <td class="px-6 py-4">
+                                        <td class="px-6 py-4 whitespace-nowrap">
                                             {{ \Carbon\Carbon::parse($item->tanggal_lahir)->age }} Tahun
                                         </td>
 
-                                        <td class="px-6 py-4 text-xs">
-                                            <div>
+                                        <td class="px-6 py-4 text-xs min-w-[150px]">
+                                            <div class="mb-1">
                                                 <span class="font-semibold text-gray-600">Ayah:</span>
                                                 {{ $item->orangTua->where('jenis_orang_tua', 'Ayah')->first()->nama ?? '-' }}
                                             </div>
@@ -79,7 +88,7 @@
                                             </div>
                                         </td>
 
-                                        <td class="px-6 py-4">
+                                        <td class="px-6 py-4 whitespace-nowrap">
                                             @php
                                                 $badgeColor = match ($item->status_data) {
                                                     'Draft' => 'bg-gray-100 text-gray-800',
@@ -94,11 +103,11 @@
                                             </span>
                                         </td>
 
-                                        <td class="px-6 py-4 text-right space-x-2">
+                                        <td class="px-6 py-4 text-right space-x-3 whitespace-nowrap">
                                             <a href="{{ route('anak.show', $item->id) }}"
                                                 class="font-medium text-[#004ac6] hover:underline">Detail</a>
                                             @role('pendamping')
-                                            @if(in_array($item->status_data, ['Draft', 'Ditolak', 'Pending']))
+                                            @if(in_array($item->status_data, ['Draft', 'Ditolak']))
                                                 <a href="{{ route('anak.edit', $item->id) }}"
                                                     class="font-medium text-yellow-600 hover:underline">Edit</a>
                                             @endif

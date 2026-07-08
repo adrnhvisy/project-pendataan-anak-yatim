@@ -5,16 +5,16 @@
     </div>
     <div class="p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
         <div class="md:col-span-4">
-            <x-input-label for="alamat_lengkap" value="Alamat Lengkap" />
+            <x-input-label for="alamat_lengkap" >Alamat Lengkap <span class="text-[#EF4444]">*</span></x-input-label>
             <x-text-input id="alamat_lengkap" name="alamat_lengkap" type="text" class="mt-1 block w-full border-[#E2E8F0] focus:border-[#004ac6]" value="{{ old('alamat_lengkap', $anak->alamatDomisili->alamat_lengkap ?? '') }}" required />
         </div>
         <div>
-            <x-input-label for="rt" value="RT" />
-            <x-text-input id="rt" name="rt" type="text" class="mt-1 block w-full border-[#E2E8F0] focus:border-[#004ac6]" value="{{ old('rt', $anak->alamatDomisili->rt ?? '') }}" required />
+            <x-input-label for="rt">RT <span class="text-[#EF4444]">*</span></x-input-label>
+            <x-text-input id="rt" name="rt" oninput="this.value = this.value.replace(/[^0-9]/g, '')" type="text" class="mt-1 block w-full border-[#E2E8F0] focus:border-[#004ac6]" value="{{ old('rt', $anak->alamatDomisili->rt ?? '') }}" required />
         </div>
         <div>
-            <x-input-label for="rw" value="RW" />
-            <x-text-input id="rw" name="rw" type="text" class="mt-1 block w-full border-[#E2E8F0] focus:border-[#004ac6]" value="{{ old('rw', $anak->alamatDomisili->rw ?? '') }}" required />
+            <x-input-label for="rw">RW <span class="text-[#EF4444]">*</span></x-input-label>
+            <x-text-input id="rw" name="rw" oninput="this.value = this.value.replace(/[^0-9]/g, '')" type="text" class="mt-1 block w-full border-[#E2E8F0] focus:border-[#004ac6]" value="{{ old('rw', $anak->alamatDomisili->rw ?? '') }}" required />
         </div>
         <div class="md:col-span-2">
             <x-input-label value="Kelurahan (Otomatis Wilayah Anda)" />

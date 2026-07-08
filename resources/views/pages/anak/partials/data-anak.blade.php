@@ -3,7 +3,7 @@
         <h3 class="text-lg font-bold text-[#0b1c30]">1. Biodata Anak</h3>
     </div>
 
-    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
 
         <div>
             <x-input-label for="nama_lengkap" class="text-[#434655] font-semibold">
@@ -25,8 +25,7 @@
 
             <p class="text-xs mt-1 font-medium transition-colors duration-200"
                 :class="nik.length === 16 ? 'text-green-600' : (nik.length > 0 ? 'text-amber-600' : 'text-gray-500')">
-                <span x-show="nik.length > 0 && nik.length < 16">NIK kurang <span x-text="16 - nik.length"></span> digit
-                    lagi</span>
+                <span x-show="nik.length > 0 && nik.length < 16">NIK kurang <span x-text="16 - nik.length"></span> digit lagi</span>
                 <span x-show="nik.length === 16">✓ NIK valid (16 digit)</span>
                 <span x-show="nik.length > 16">NIK terlalu panjang!</span>
             </p>
@@ -34,7 +33,7 @@
             @error('nik') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
         </div>
 
-        <div class="mt-6" x-data="{ no_kk: '{{ old('no_kk', $anak->no_kk ?? '') }}' }">
+        <div x-data="{ no_kk: '{{ old('no_kk', $anak->no_kk ?? '') }}' }">
             <x-input-label for="no_kk" class="text-[#434655] font-semibold">
                 Nomor Kartu Keluarga <span class="text-red-500">*</span>
             </x-input-label>
@@ -44,8 +43,7 @@
 
             <p class="text-xs mt-1 font-medium transition-colors duration-200"
                 :class="no_kk.length === 16 ? 'text-green-600' : (no_kk.length > 0 ? 'text-amber-600' : 'text-gray-500')">
-                <span x-show="no_kk.length > 0 && no_kk.length < 16">KK kurang <span x-text="16 - no_kk.length"></span>
-                    digit lagi</span>
+                <span x-show="no_kk.length > 0 && no_kk.length < 16">KK kurang <span x-text="16 - no_kk.length"></span> digit lagi</span>
                 <span x-show="no_kk.length === 16">✓ Nomor KK valid (16 digit)</span>
                 <span x-show="no_kk.length > 16">Nomor KK terlalu panjang!</span>
             </p>
@@ -53,7 +51,7 @@
             @error('no_kk') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
         </div>
 
-        <div class="mt-6" x-data="{ rek: '{{ old('no_rekening', $anak->no_rekening ?? '') }}' }">
+        <div x-data="{ rek: '{{ old('no_rekening', $anak->no_rekening ?? '') }}' }">
             <x-input-label for="no_rekening" value="Nomor Rekening (Opsional)" class="text-[#434655] font-semibold" />
             <x-text-input id="no_rekening" name="no_rekening" type="text" inputmode="numeric"
                 class="mt-2 block w-full border-[#E2E8F0] focus:border-[#004ac6] focus:ring-[#004ac6] rounded-lg"
@@ -105,17 +103,14 @@
             <select id="status_anak" name="status_anak"
                 class="mt-2 block w-full border-[#E2E8F0] rounded-lg shadow-sm focus:border-[#004ac6] focus:ring-[#004ac6] text-[#434655]"
                 required>
-                <option value="Yatim" {{ old('status_anak', $anak->status_anak ?? '') == 'Yatim' ? 'selected' : '' }}>
-                    Yatim</option>
-                <option value="Piatu" {{ old('status_anak', $anak->status_anak ?? '') == 'Piatu' ? 'selected' : '' }}>
-                    Piatu</option>
+                <option value="Yatim" {{ old('status_anak', $anak->status_anak ?? '') == 'Yatim' ? 'selected' : '' }}>Yatim</option>
+                <option value="Piatu" {{ old('status_anak', $anak->status_anak ?? '') == 'Piatu' ? 'selected' : '' }}>Piatu</option>
                 <option value="Yatim Piatu" {{ old('status_anak', $anak->status_anak ?? '') == 'Yatim Piatu' ? 'selected' : '' }}>Yatim Piatu</option>
             </select>
         </div>
 
         <div class="md:col-span-2">
-            <x-input-label for="catatan" value="Catatan Admin Kelurahan (Kondisi Anak, dll)"
-                class="text-[#434655] font-semibold" />
+            <x-input-label for="catatan" value="Catatan Admin Kelurahan (Kondisi Anak, dll)" class="text-[#434655] font-semibold" />
             <textarea id="catatan" name="catatan" rows="3"
                 class="mt-2 block w-full border-[#E2E8F0] rounded-lg shadow-sm focus:border-[#004ac6] focus:ring-[#004ac6]"
                 placeholder="Masukkan keterangan tambahan kondisi anak jika ada...">{{ old('catatan', $anak->catatan ?? '') }}</textarea>

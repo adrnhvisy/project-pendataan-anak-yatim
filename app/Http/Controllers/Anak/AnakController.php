@@ -21,17 +21,21 @@ class AnakController extends Controller
         $user = $request->user();
         $query = Anak::with(['alamatDomisili.kelurahan', 'orangTua', 'pembuatData'])->latest();
 
-        // 1. Filter untuk Pendamping (Berdasarkan Kelurahan)
-        if ($user->hasRole('pendamping')) {
+        // Pastikan admin bisa melihat semuanya
+        if ($user->hasRole('admin')) {
+            // Admin tidak perlu filter
+        }
+        // Filter untuk Pendamping
+        elseif ($user->hasRole('pendamping')) {
             if ($user->kelurahan_id) {
                 $query->whereHas('alamatDomisili', function ($q) use ($user) {
                     $q->where('kelurahan_id', $user->kelurahan_id);
                 });
             } else {
-                $query->whereRaw('1 = 0');
+                $query->whereRaw('1 = 0'); // Menampilkan hasil kosong jika kelurahan tidak di set
             }
         }
-        // 2. Filter untuk Kesra (Berdasarkan Kabupaten)
+        // Filter untuk Kesra
         elseif ($user->hasRole('kesra')) {
             if ($user->kabupaten_id) {
                 $query->whereHas('alamatDomisili.kelurahan.kecamatan', function ($q) use ($user) {
@@ -40,9 +44,26 @@ class AnakController extends Controller
             } else {
                 $query->whereRaw('1 = 0');
             }
+        } elseif ($user->hasRole('kecamatan')) {
+            if ($user->kecamatan_id) {
+                $query->whereHas('alamatDomisili.kelurahan.kecamatan', function ($q) use ($user) {
+                    $q->where('kecamatan_id', $user->kecamatan_id);
+                });
+            } else {
+                $query->whereRaw('1 = 0');
+            }
         }
 
-        $anak = $query->paginate(15);
+        // Pencarian
+        $query->when($request->filled('search'), function ($q) use ($request) {
+            $searchTerm = $request->search;
+            $q->where(function ($query) use ($searchTerm) {
+                $query->where('nik', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('nama_lengkap', 'like', '%' . $searchTerm . '%');
+            });
+        });
+
+        $anak = $query->paginate(15)->withQueryString();
         return view('pages.anak.index', compact('anak'));
     }
 

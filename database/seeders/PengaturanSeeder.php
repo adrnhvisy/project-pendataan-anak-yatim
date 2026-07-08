@@ -40,7 +40,12 @@ class PengaturanSeeder extends Seeder
                 'tipe' => 'image',
                 'keterangan' => 'Logo untuk tampil di halaman atas.'
             ],
-
+            [
+                'key' => 'buku_panduan',
+                'value' => null, // Biarkan kosong dulu, atau isi dengan nama file default jika sudah ada
+                'tipe' => 'file', // Kita buat tipe baru khusus untuk dokumen
+                'keterangan' => 'Panduan penggunaan aplikasi (Format: PDF atau Word).'
+            ],
         ];
 
         foreach ($pengaturan as $item) {

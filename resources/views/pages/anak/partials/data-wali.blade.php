@@ -13,7 +13,7 @@
         <div x-data="{ nikWali: '{{ old('nik_wali', $anak->wali->nik ?? '') }}' }">
             <!-- Label -->
             <x-input-label for="nik_wali" class="text-[#434655] font-semibold">
-                NIK Wali <span class="text-red-500">*</span>
+                NIK Wali 
             </x-input-label>
 
             <!-- Input Field -->
@@ -22,7 +22,7 @@
                       'border-green-500 focus:border-green-500 focus:ring-green-500': nikWali.length === 16 && /^\d+$/.test(nikWali) 
                   }"
                 class="mt-1 block w-full border-[#E2E8F0] focus:border-[#004ac6] focus:ring-[#004ac6] rounded-lg transition-colors duration-200"
-                value="{{ old('nik_wali', $anak->wali->nik ?? '') }}" placeholder="16 digit NIK" required />
+                value="{{ old('nik_wali', $anak->wali->nik ?? '') }}" placeholder="16 digit NIK" />
 
             <!-- Pesan Peringatan Real-Time -->
             <p x-show="nikWali.length > 0 && (nikWali.length !== 16 || !/^\d+$/.test(nikWali))"

@@ -31,7 +31,7 @@
 
             <div class="flex items-center gap-2">
                 @role('pendamping')
-                @if(in_array($anak->status_data, ['Draft', 'Ditolak']))
+                @if(in_array($anak->status_data, ['Ditolak']))
                     <a href="{{ route('anak.edit', $anak->id) }}"
                         class="inline-flex items-center px-4 py-2 bg-white border border-[#E2E8F0] rounded-lg font-semibold text-xs text-[#434655] uppercase tracking-widest hover:bg-gray-50 transition shadow-sm">
                         Edit Data

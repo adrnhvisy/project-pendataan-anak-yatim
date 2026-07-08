@@ -3,6 +3,18 @@
     <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-full flex justify-between items-center">
 
         <div class="flex items-center gap-6">
+
+            <button @click="sidebarOpen = !sidebarOpen"
+                class="p-2 -ml-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path x-show="!sidebarOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 6h16M4 12h16M4 18h16"></path>
+
+                    <path x-show="sidebarOpen" style="display: none;" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+
             <div class="flex items-center gap-2">
                 <div
                     class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-md shadow-blue-200 overflow-hidden shrink-0">

@@ -7,7 +7,7 @@
 
     <div class="py-12 bg-[#f8f9ff] min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            
+
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-[#e5eeff]">
                     <p class="text-sm font-medium text-[#434655] uppercase tracking-wider">Total Anak</p>
@@ -26,7 +26,27 @@
                     <p class="text-4xl font-bold text-green-600 mt-2">{{ $stats['disetujui'] ?? 0 }}</p>
                 </div>
             </div>
-
+            @if(get_setting('buku_panduan'))
+                <div
+                    class="bg-white p-6 rounded-xl shadow-sm border border-[#e5eeff] flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-[#0b1c30]">Selamat Datang, {{ Auth::user()->name }}!</h3>
+                        <p class="text-sm text-[#737686] mt-1">
+                            Silakan gunakan dashboard ini untuk memantau data anak yatim. Jika mengalami kendala, Anda dapat
+                            melihat panduan penggunaan sistem.
+                        </p>
+                    </div>
+                    <a href="{{ asset('storage/' . get_setting('buku_panduan')) }}" target="_blank"
+                        class="inline-flex items-center justify-center px-5 py-2.5 bg-[#004ac6] hover:bg-blue-800 text-white font-bold text-sm rounded-lg transition-colors shrink-0">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                            </path>
+                        </svg>
+                        Lihat Buku Panduan
+                    </a>
+                </div>
+            @endif
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-[#e5eeff]">
                 <div class="p-6 bg-white border-b border-[#e5eeff]">
                     <h3 class="text-lg font-bold text-[#0b1c30] mb-4">Data Anak Terbaru</h3>
@@ -39,7 +59,9 @@
                                     <th scope="col" class="px-6 py-3">Kelurahan</th>
                                     <th scope="col" class="px-6 py-3">Status Anak</th>
                                     <th scope="col" class="px-6 py-3">Status Data</th>
+                                    @role('kesra|kecamatan|pendamping')
                                     <th scope="col" class="px-6 py-3 text-right">Aksi</th>
+                                    @endrole
                                 </tr>
                             </thead>
                             <tbody>
@@ -47,11 +69,12 @@
                                     <tr class="bg-white border-b border-[#e5eeff] even:bg-[#F1F5F9]">
                                         <td class="px-6 py-4 font-medium text-[#0b1c30]">{{ $anak->no_registrasi }}</td>
                                         <td class="px-6 py-4">{{ $anak->nama_lengkap }}</td>
-                                        <td class="px-6 py-4">{{ $anak->alamatDomisili->kelurahan->nama_kelurahan ?? '-' }}</td>
+                                        <td class="px-6 py-4">{{ $anak->alamatDomisili->kelurahan->nama_kelurahan ?? '-' }}
+                                        </td>
                                         <td class="px-6 py-4">{{ $anak->status_anak }}</td>
                                         <td class="px-6 py-4">
                                             @php
-                                                $badgeColor = match($anak->status_data) {
+                                                $badgeColor = match ($anak->status_data) {
                                                     'Draft' => 'bg-gray-100 text-gray-800',
                                                     'Pending' => 'bg-yellow-100 text-yellow-800',
                                                     'Disetujui' => 'bg-green-100 text-green-800',
@@ -63,9 +86,12 @@
                                                 {{ $anak->status_data }}
                                             </span>
                                         </td>
+                                        @role('kesra|kecamatan|pendamping')
                                         <td class="px-6 py-4 text-right">
-                                            <a href="{{ route('anak.show', $anak->id) }}" class="font-medium text-[#004ac6] hover:underline">Detail</a>
+                                            <a href="{{ route('anak.show', $anak->id) }}"
+                                                class="font-medium text-[#004ac6] hover:underline">Detail</a>
                                         </td>
+                                        @endrole
                                     </tr>
                                 @empty
                                     <tr>
@@ -85,7 +111,8 @@
                 <div class="p-6 bg-white">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-bold text-[#0b1c30]">Log Aktivitas Terbaru</h3>
-                        <a href="{{ route('audit.index') }}" class="text-sm text-[#004ac6] hover:underline">Lihat Semua</a>
+                        <a href="{{ route('audit.index') }}" class="text-sm text-[#004ac6] hover:underline">Lihat
+                            Semua</a>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm text-left text-[#434655]">
@@ -101,7 +128,8 @@
                             <tbody>
                                 @forelse ($auditTerbaru as $log)
                                     <tr class="bg-white border-b border-[#e5eeff] even:bg-[#F1F5F9]">
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ $log->created_at->format('d/m/Y H:i') }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">{{ $log->created_at->format('d/m/Y H:i') }}
+                                        </td>
                                         <td class="px-6 py-4">{{ $log->user->name ?? 'System' }}</td>
                                         <td class="px-6 py-4">{{ $log->module }}</td>
                                         <td class="px-6 py-4 font-semibold">{{ $log->action }}</td>
@@ -109,7 +137,8 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-6 py-8 text-center text-gray-500">Tidak ada log aktivitas.</td>
+                                        <td colspan="5" class="px-6 py-8 text-center text-gray-500">Tidak ada log aktivitas.
+                                        </td>
                                     </tr>
                                 @endforelse
                             </tbody>

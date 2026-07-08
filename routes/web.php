@@ -5,7 +5,7 @@ use App\Http\Controllers\Sistem\AuditLogController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Anak\AnakController;
-use App\Http\Controllers\Anak\AnakDokumenController;
+// use App\Http\Controllers\Anak\AnakDokumenController;
 use App\Http\Controllers\Verifikasi\VerifikasiController;
 use App\Http\Controllers\Master\UserController;
 use App\Http\Controllers\Master\RolePermissionController;
@@ -31,15 +31,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ==========================================
     Route::prefix('anak')->name('anak.')->group(function () {
         // Dokumen
-        Route::get('/{anak}/dokumen', [AnakDokumenController::class, 'index'])->name('dokumen.index');
-        Route::post('/{anak}/dokumen', [AnakDokumenController::class, 'store'])->name('dokumen.store');
-        Route::delete('/{anak}/dokumen/{dokumen}', [AnakDokumenController::class, 'destroy'])->name('dokumen.destroy');
+        // Route::get('/{anak}/dokumen', [AnakDokumenController::class, 'index'])->name('dokumen.index');
+        // Route::post('/{anak}/dokumen', [AnakDokumenController::class, 'store'])->name('dokumen.store');
+        // Route::delete('/{anak}/dokumen/{dokumen}', [AnakDokumenController::class, 'destroy'])->name('dokumen.destroy');
 
         // Submit Verifikasi (Ubah status Draft -> Pending)
         Route::post('/{anak}/submit', [AnakController::class, 'submit'])->name('submit')->middleware('role:pendamping');
     });
-    // Resource Anak
-    Route::resource('anak', AnakController::class)->except(['destroy']); // Zero Deletion policy
+    Route::resource('anak', AnakController::class)->middleware(['role:kesra|pendamping|kecamatan'])->except(['destroy']); // Zero Deletion policy
 
     // ==========================================
     // VERIFIKASI (Khusus Kesra)
@@ -69,12 +68,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Manajemen Pengguna
         Route::resource('users', UserController::class)->names([
-            'index'     => 'users.index',
-            'create'    => 'users.create',
-            'store'     => 'users.store',
-            'edit'      => 'users.edit',
-            'update'    => 'users.update',
-            'destroy'   => 'users.destroy',
+            'index' => 'users.index',
+            'create' => 'users.create',
+            'store' => 'users.store',
+            'edit' => 'users.edit',
+            'update' => 'users.update',
+            'destroy' => 'users.destroy',
         ]);
 
 
