@@ -88,7 +88,7 @@
                     <p class="text-xs text-[#737686]">Akun Saya</p>
                 </div>
 
-                <a href="{{ route('profile.edit') }}" @click="loadingProfile = true"
+                <a href="{{ route('profile.index') }}" @click="loadingProfile = true"
                     :class="loadingProfile ? 'opacity-75 cursor-wait' : 'hover:bg-[#eff4ff] hover:text-[#004ac6]'"
                     class="flex items-center gap-2 px-4 py-2 text-sm text-[#434655] transition-all duration-200">
 

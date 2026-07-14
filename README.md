@@ -1,253 +1,85 @@
-# 📋 Sistem Informasi Pendataan Anak Yatim
-
-Sistem Informasi Pendataan Anak Yatim adalah sebuah platform digital yang dirancang untuk mengelola, memvalidasi, dan menyalurkan bantuan kepada anak yatim secara terstruktur. Sistem ini membagi tingkatan akses pengguna mulai dari tingkat Kelurahan, Kecamatan, Dinas Kesejahteraan Rakyat (Kesra), hingga Superadmin untuk memastikan akurasi data yang dilaporkan dari lapangan.
-
----
-
-## 🛠️ Teknologi, Framework, dan Package yang Digunakan
-
-Proyek ini dibangun menggunakan kombinasi teknologi modern dan beberapa *package* tambahan untuk mempercepat proses pengembangan, mengatur hak akses, dan memastikan keamanan sistem. Berikut adalah rincian alat yang digunakan dan telah terinstal di dalam proyek:
-
-### 1. Core Framework & Database
-- **Laravel (Versi 13.x / PHP 8.3)**: Kerangka kerja (*framework*) utama di sisi *backend* yang mengatur alur logika aplikasi, rute (*routing*), dan interaksi dengan *database*.
-- **MySQL / MariaDB**: Sistem manajemen basis data relasional (RDBMS) untuk menyimpan seluruh data sistem secara terstruktur.
-- **Composer**: Manajer dependensi untuk bahasa pemrograman PHP. *Tool* ini digunakan untuk menginisialisasi proyek Laravel (`composer create-project`) dan mengelola seluruh pustaka pihak ketiga.
-
-### 2. Pustaka (Package) Utama yang Telah Diinstal
-Berdasarkan konfigurasi proyek, sistem ini mengandalkan dua *package* utama untuk mengatur pintu masuk dan hak akses pengguna:
-
-- **Laravel Breeze (dengan antarmuka Blade)**: 
-  *Package* resmi dari Laravel yang digunakan untuk membangun fondasi autentikasi pengguna secara instan (*login, register, logout, session*). Pemasangan *package* ini (`breeze:install blade`) secara otomatis menyiapkan antarmuka pengguna berbasis **Tailwind CSS** dan struktur *templating* **Blade**.
-- **Spatie Laravel Permission**: 
-  *Package* pihak ketiga yang khusus diinstal untuk menangani sistem **Role-Based Access Control (RBAC)**. Alat ini memudahkan pengelolaan berbagai peran pengguna (Superadmin, Kesra, Kecamatan, Pendamping) beserta izin akses (hak untuk menambah, memvalidasi, atau menghapus data) langsung melalui *database*.
-
-### 3. Tools Pendukung Lainnya
-- **Git & GitHub**: Digunakan untuk manajemen repositori kode (melacak versi dan perubahan file).
-
-### 4. Pustaka Ekspor/Impor Data (Pelaporan)
-- **Laravel Excel (Maatwebsite)**: 📊 Pustaka khusus untuk mengekspor data dari *database* ke format `.xlsx` atau `.csv`, serta mengimpor sekumpulan data dari *file* Excel langsung ke dalam sistem.
-- **Laravel DomPDF (Barryvdh)**: 📄 Pustaka untuk men-*generate* tampilan halaman web (HTML/Blade) menjadi dokumen PDF yang siap cetak atau diunduh.
-
-### 🚀 Langkah Instalasi Tambahan
-
-Untuk menginstal alat pembuat PDF dan Excel tersebut, jalankan perintah ini di terminal:
-
-```bash
-# Menginstal pustaka untuk fitur Excel
-composer require maatwebsite/excel
-
-# Menginstal pustaka untuk fitur cetak PDF
-composer require barryvdh/laravel-dompdf
-
----
-
-## 👥 Manajemen Pengguna & Pembagian Tugas (Roles & Responsibilities)
-
-Sistem ini menerapkan _Role-Based Access Control_ (RBAC) yang membagi pengguna ke dalam 4 tingkatan tingkat otoritas:
-
-| No  | Nama Role                        | Tingkat Otoritas  | Ruang Lingkup Kerja & Tugas Utama                                                                                                                                                                                                              |
-| :-- | :------------------------------- | :---------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | **Superadmin**                   | Sistem Global     | 🔑 Mengelola seluruh akun pengguna (semua role).<br>📊 Melakukan backup/restore database sistem.<br>🛠️ Memperbaiki konfigurasi global dan memantau log aktivitas sistem (_system logs_).                                                       |
-| 2   | **Kesra (Kesejahteraan Rakyat)** | Kabupaten/Kota    | 📑 Menjadi validator akhir data anak yatim di tingkat pusat.<br>🎁 Mengelola master data program bantuan (menambah jenis bantuan baru).<br>📈 Melihat dan mengunduh laporan infografis data statistik anak yatim seluruh wilayah.              |
-| 3   | **Kecamatan**                    | Tingkat Kecamatan | 🔍 Melakukan verifikasi dan validasi (Approval) data yang diajukan oleh Pendamping Kelurahan.<br>📂 Memantau perkembangan jumlah anak yatim khusus di wilayah kecamatannya.<br>🖨️ Mengunduh laporan berkala per kecamatan.                     |
-| 4   | **Pendamping (Kelurahan)**       | Tingkat Kelurahan | 📝 Melakukan input data awal anak yatim langsung dari lapangan.<br>📸 Mengunggah berkas pendukung (Foto, KK, Akta Kelahiran).<br>🔄 Melakukan pembaruan (update) jika ada perubahan status anak (misal: usia melewati batas, pindah domisili). |
-
----
-
-## 🔐 Hak Akses & Visibilitas Data (Data Scoping)
-
-Sistem ini menerapkan pembatasan visibilitas data (*Row-Level Security*) untuk memastikan setiap pengguna hanya dapat memantau dan memvalidasi data anak yatim sesuai dengan wilayah wewenangnya. Berikut adalah aturan sistemnya:
-
-### 1. Tingkat Kesra (Top Level)
-- **Cakupan Akses**: Seluruh data kabupaten/kota.
-- **Tampilan Antarmuka**: Terdapat *dropdown filter* pencarian untuk **Kecamatan** dan **Kelurahan**.
-- **Logika Kueri (Query)**: Secara *default* dapat membaca semua baris di tabel `anak`. Jika *filter* dipilih, sistem akan memfilter berdasarkan `kecamatan_id` atau `kelurahan_id`.
-
-### 2. Tingkat Kecamatan (Middle Level)
-- **Cakupan Akses**: Terkunci khusus untuk data yang berada di kecamatannya saja.
-- **Tampilan Antarmuka**: Hanya terdapat *dropdown filter* untuk **Kelurahan** (opsi yang muncul hanya kelurahan yang berada di bawah naungan kecamatan tersebut).
-- **Logika Kueri (Query)**: Sistem selalu menyisipkan filter wajib `WHERE kecamatan_id = [ID_Kecamatan_User]` di setiap pencarian atau ekspor data.
-
-### 3. Tingkat Pendamping / Kelurahan (Bottom Level)
-- **Cakupan Akses**: Terkunci absolut hanya untuk kelurahannya sendiri.
-- **Tampilan Antarmuka**: Tidak ada *filter* pencarian wilayah sama sekali.
-- **Logika Kueri (Query)**: Sistem mengunci data secara ketat dengan `WHERE kelurahan_id = [ID_Kelurahan_User]`. Akun pendamping tidak akan bisa mengintip atau mengubah data dari kelurahan tetangga.
-
----
-
-
-## 🗄️ Rancangan Struktur Tabel Database
-
-Berikut adalah pembaruan struktur tabel basis data relasional yang dirancang sesuai dengan skema terbaru beserta penjelasannya:
-
-### 1. Tabel `provinsi`
-
-Menyimpan data wilayah administratif tingkat provinsi.
-
-- `id` (BIGINT, Primary Key)
-- `nama_provinsi` (VARCHAR)
-
-### 2. Tabel `kabupaten`
-
-Menyimpan data wilayah administratif tingkat kabupaten/kota.
-
-- `id` (BIGINT, Primary Key)
-- `provinsi_id` (BIGINT, Foreign Key -> `provinsi.id`)
-- `nama_kabupaten` (VARCHAR)
-
-### 3. Tabel `kecamatan`
-
-Menyimpan data wilayah administratif tingkat kecamatan.
-
-- `id` (BIGINT, Primary Key)
-- `kabupaten_id` (BIGINT, Foreign Key -> `kabupaten.id`)
-- `nama_kecamatan` (VARCHAR)
-
-### 4. Tabel `kelurahan`
-
-Menyimpan data wilayah administratif tingkat kelurahan/desa.
-
-- `id` (BIGINT, Primary Key)
-- `kecamatan_id` (BIGINT, Foreign Key -> `kecamatan.id`)
-- `nama_kelurahan` (VARCHAR)
-- `kode_pos` (CHAR(5))
-
-### 5. Tabel `users`
-
-Menyimpan informasi akun pengguna sistem beserta perannya (Superadmin, Kesra, Kecamatan, atau Pendamping).
-
-- `id` (BIGINT, Primary Key)
-- `name` (VARCHAR)
-- `email` (VARCHAR, Unique)
-- `password` (VARCHAR)
-- `role` (ENUM)
-- `kelurahan_id` (BIGINT, Foreign Key -> `kelurahan.id`)
-
-### 6. Tabel `alamat`
-
-Menyimpan data detail alamat yang dapat digunakan secara fleksibel untuk anak, orang tua, maupun wali.
-
-- `id` (BIGINT, Primary Key)
-- `alamat_lengkap` (TEXT)
-- `rt` (CHAR(3))
-- `rw` (CHAR(3))
-- `kelurahan_id` (BIGINT, Foreign Key -> `kelurahan.id`)
-
-### 7. Tabel `anak`
-
-Tabel utama untuk menyimpan data profil anak yatim.
-
-- `id` (BIGINT, Primary Key)
-- `no_registrasi` (VARCHAR, Unique)
-- `nama_lengkap` (VARCHAR)
-- `no_kk` (VARCHAR)
-- `nik` (CHAR(16), Unique)
-- `tempat_lahir` (VARCHAR)
-- `tanggal_lahir` (DATE)
-- `jenis_kelamin` (ENUM)
-- `status_anak` (VARCHAR)
-- `no_rekening` (VARCHAR)
-- `status_data` (VARCHAR)
-- `alamat_domisili_id` (BIGINT, Foreign Key -> `alamat.id`)
-- `kelurahan_id` (BIGINT, Foreign Key -> `kelurahan.id`)
-- `created_by` (BIGINT, Foreign Key -> `users.id`)
-
-### 8. Tabel `orang_tua`
-
-Menyimpan data orang tua kandung dari anak.
-
-- `id` (BIGINT, Primary Key)
-- `anak_id` (BIGINT, Foreign Key -> `anak.id`)
-- `jenis_orang_tua` (ENUM)
-- `nama` (VARCHAR)
-- `nik` (CHAR(16))
-- `status_hidup` (ENUM)
-- `pekerjaan` (VARCHAR)
-- `alamat_id` (BIGINT, Foreign Key -> `alamat.id`)
-
-### 9. Tabel `wali`
-
-Menyimpan data wali pengasuh jika anak tidak tinggal bersama orang tua kandung.
-
-- `id` (BIGINT, Primary Key)
-- `anak_id` (BIGINT, Foreign Key -> `anak.id`)
-- `nama` (VARCHAR)
-- `nik` (CHAR(16))
-- `hubungan_dengan_anak` (VARCHAR)
-- `pekerjaan` (VARCHAR)
-- `alamat_id` (BIGINT, Foreign Key -> `alamat.id`)
-
-### 10. Tabel `kategori_dokumen`
-
-Menyimpan referensi jenis-jenis dokumen persyaratan (misal: Kartu Keluarga, Akta Kelahiran, Surat Kematian).
-
-- `id` (BIGINT, Primary Key)
-- `nama_dokumen` (VARCHAR)
-- `is_wajib` (BOOLEAN)
-
-### 11. Tabel `dokumen_anak`
-
-Menyimpan riwayat berkas digital yang diunggah sebagai persyaratan untuk masing-masing anak.
-
-- `id` (BIGINT, Primary Key)
-- `anak_id` (BIGINT, Foreign Key -> `anak.id`)
-- `kategori_dok_id` (BIGINT, Foreign Key -> `kategori_dokumen.id`)
-- `file_path` (VARCHAR)
-- `status_verifikasi` (VARCHAR)
-
-### 12. Tabel `status_histori`
-
-Mencatat rekam jejak (_history_) perubahan status verifikasi data anak dari waktu ke waktu.
-
-- `id` (BIGINT, Primary Key)
-- `anak_id` (BIGINT, Foreign Key -> `anak.id`)
-- `status_anak` (VARCHAR)
-- `tanggal` (DATE)
-- `keterangan` (TEXT)
-- `created_by` (BIGINT, Foreign Key -> `users.id`)
-
-### 13. Tabel `audit_logs`
-
-Mencatat aktivitas log pengguna di dalam sistem untuk kebutuhan pemantauan dan keamanan.
-
-- `id` (BIGINT, Primary Key)
-- `user_id` (BIGINT, Foreign Key -> `users.id`)
-- `action` (VARCHAR)
-- `description` (TEXT)
-- `ip_address` (VARCHAR)
-
-## 🔁 Alur Kerja Sistem (Workflow)
-
-1. **Input Data**: 📝 **Pendamping Kelurahan** menginput profil anak yatim baru dan mengunggah berkas persyaratan ke dalam sistem. Status awal data adalah `Pending`.
-2. **Validasi Tahap 1**: 🔍 **Akun Kecamatan** memeriksa data yang masuk di wilayahnya. Jika berkas sesuai, status diubah menjadi `Disetujui Kecamatan`. Jika tidak, status diubah menjadi `Ditolak` disertai catatan perbaikan.
-3. **Validasi Tahap 2 & Sinkronisasi**: 📑 **Kesra** melakukan verifikasi akhir terhadap data yang disetujui kecamatan untuk mengubah status menjadi `Disetujui Kesra`. Data inilah yang sah menjadi penerima program bantuan.
-4. **Penyaluran Bantuan**: 🎁 **Kesra** membuat program bantuan di tabel `bantuan`, lalu menghubungkan anak-anak yatim yang lolos verifikasi ke dalam tabel `penerima_bantuan`.
-
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+# BAB 1: Pendahuluan
+
+## 1.1 Latar Belakang
+Sebelumnya, pendataan anak yatim penerima bantuan di Kabupaten Pelalawan masih dilakukan secara manual atau menggunakan data yang tersebar di berbagai instansi. Hal ini sering kali menimbulkan berbagai kendala, seperti keterlambatan proses verifikasi berjenjang, sulitnya melakukan *monitoring* secara *real-time*, hingga kendala dalam penyusunan laporan rekapitulasi.
+
+Untuk menyelesaikan permasalahan tersebut, dibangunlah SAHABAT (Sistem Administrasi Hibah Bantuan Anak Yatim). SAHABAT merupakan aplikasi berbasis web yang dirancang khusus sebagai solusi digital untuk menyederhanakan dan mengintegrasikan proses pendataan, pengelolaan dokumen, verifikasi, hingga pelaporan administrasi anak yatim secara terpusat.
+
+## 1.2 Dasar Hukum
+Pelaksanaan sistem SAHABAT dilandasi oleh peraturan-peraturan berikut:
+* [Peraturan Daerah Kabupaten Pelalawan Nomor ... Tahun ...]
+* [Peraturan Bupati Pelalawan Nomor ... Tahun ...]
+* [Surat Keputusan Bupati Nomor ...]
+* [Peraturan terkait lainnya]
+
+## 1.3 Tujuan Sistem
+Penggunaan aplikasi SAHABAT ditujukan untuk:
+* Meningkatkan akurasi dan validitas data penerima bantuan.
+* Mengurangi risiko duplikasi data anak yatim antar wilayah.
+* Meningkatkan transparansi dan akuntabilitas proses pengajuan.
+* Menyediakan rekam jejak (*histori*) perubahan data untuk mendukung proses audit.
+* Mendukung proses *monitoring* secara lintas wilayah dari tingkat Kelurahan hingga Kabupaten.
+
+## 1.4 Ruang Lingkup Sistem
+Aplikasi SAHABAT mencakup modul dan fitur operasional berikut:
+1. Pendataan Anak (Identitas, Orang Tua, Wali, Pendidikan).
+2. Pengelolaan Dokumen Persyaratan Digital.
+3. Verifikasi Data Berjenjang (Alur Persetujuan/Revisi/Penolakan).
+4. Pelaporan dan Rekapitulasi Data.
+5. Manajemen Pengguna dan Wilayah.
+6. Pencatatan Log Aktivitas (*Audit Log*).
+
+**Batasan Sistem:**
+Aplikasi SAHABAT **bukan** merupakan sistem pengelolaan keuangan daerah dan **tidak digunakan** untuk proses pencairan dana hibah secara langsung. Sistem ini berfokus murni pada administrasi pendataan, verifikasi syarat, pengelolaan dokumen, dan pelaporan status anak penerima bantuan.
+
+## 1.5 Sasaran Pengguna
+Sistem ini beroperasi dengan batasan hak akses yang ketat. Setiap pengguna hanya dapat mengakses modul dan data sesuai dengan kewenangannya:
+1. **Superadmin:** Mengelola konfigurasi sistem, memantau *audit log*, serta mengatur manajemen pengguna (*User, Role, Permission*) dan data wilayah.
+2. **Admin Bupati:** Memiliki kewenangan untuk melakukan ulasan (*review*), memverifikasi data (menyetujui, menolak, atau meminta revisi), serta memantau laporan di tingkat Kabupaten.
+3. **Admin Kecamatan:** Memiliki hak akses untuk melakukan *monitoring* dan melihat statistik data seluruh kelurahan yang berada di bawah wilayah administrasinya.
+4. **Admin Kelurahan:** Bertindak sebagai operator lapangan yang bertugas menginput data anak, mengunggah dokumen, dan memantau status pengajuan di wilayah kelurahannya.
+
+## 1.6 Persyaratan Penggunaan Sistem
+Untuk dapat menggunakan sistem SAHABAT, pengguna harus memastikan hal-hal berikut:
+* Memiliki koneksi jaringan internet yang stabil.
+* Memiliki akun pengguna yang berstatus aktif.
+* Menggunakan *Username/Email* dan *Password* yang sah.
+* Memiliki hak akses (*Role*) dan pembagian wilayah yang telah ditetapkan oleh Superadmin.
+* Menggunakan peramban web (*browser*) modern (seperti Google Chrome, Mozilla Firefox, atau Microsoft Edge) yang diperbarui untuk kenyamanan akses antarmuka.
+
+## 1.7 Istilah dan Singkatan
+* **SAHABAT:** Sistem Administrasi Hibah Bantuan Anak Yatim.
+* **Draf:** Status awal data anak yang sedang diisi oleh Kelurahan dan belum diajukan.
+* **Verifikasi:** Proses pengecekan keabsahan data dan dokumen oleh Admin Bupati.
+* **Audit Log:** Catatan riwayat aktivitas yang merekam setiap tindakan (tambah, ubah, hapus) di dalam sistem.
+
+
+# BAB 2: Pengenalan Sistem
+
+## 2.1 Gambaran Umum Sistem
+SAHABAT dirancang sebagai platform terpadu yang memusatkan seluruh aktivitas pengelolaan bantuan hibah anak yatim. Sistem ini menghubungkan berbagai tingkat pemerintahan (Kelurahan, Kecamatan, dan Kabupaten) ke dalam satu lingkungan digital yang sama. Dengan konsep ini, setiap pemangku kepentingan dapat bekerja pada data yang sama secara *real-time* sesuai dengan kewenangan masing-masing, meminimalisir redudansi, dan mempercepat proses birokrasi.
+
+## 2.2 Alur Bisnis
+Proses pendataan di dalam aplikasi SAHABAT mengikuti alur birokrasi yang berjenjang. Proses dimulai oleh Admin Kelurahan melalui menu Data Anak. Setelah seluruh identitas dan dokumen persyaratan dilengkapi, data tersebut diajukan untuk proses verifikasi. 
+
+Di tingkat selanjutnya, Admin Kecamatan memiliki hak untuk melakukan pemantauan terhadap seluruh data yang diajukan pada wilayah administrasinya tanpa dapat mengubah isi data. Terakhir, Admin Bupati melakukan pemeriksaan administrasi tingkat kabupaten dan memberikan keputusan akhir, yaitu berupa persetujuan, permintaan revisi kembali ke kelurahan, atau penolakan. Seluruh aktivitas perubahan status ini dicatat secara otomatis ke dalam *Audit Log* sehingga dapat ditelusuri kembali apabila diperlukan.
+
+## 2.3 Diagram Alur Bisnis
+Visualisasi di bawah ini menggambarkan perjalanan data dari tahap input hingga keputusan akhir:
+
+```mermaid
+flowchart LR
+    A[Admin Kelurahan] --> B[Input Data Anak]
+    B --> C[Upload Dokumen]
+    C --> D[Submit Verifikasi]
+    D --> E[Monitoring Kecamatan]
+    E --> F[Verifikasi Admin Bupati]
+    F --> G([Disetujui])
+    F --> H([Revisi])
+    F --> I([Ditolak])
+
+    style A fill:#f9f9f9,stroke:#333,stroke-width:2px
+    style G fill:#d4edda,stroke:#28a745
+    style H fill:#fff3cd,stroke:#ffc107
+    style I fill:#f8d7da,stroke:#dc3545
 ```
-
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

@@ -20,7 +20,7 @@ class LaporanController extends Controller
     public function anak(Request $request)
     {
         $query = $this->buildLaporanQuery($request);
-        $data = $query->paginate(20);
+        $data = $query->paginate(10);
         return view('pages.laporan.anak', compact('data'));
     }
 
@@ -33,7 +33,7 @@ class LaporanController extends Controller
             ->selectRaw('count(anak.id) as total')
             ->selectRaw('sum(case when status_data = "Disetujui" then 1 else 0 end) as total_disetujui')
             ->groupBy('alamat.kelurahan_id')
-            ->paginate(20);
+            ->paginate(10);
 
         // Load relasi Kelurahan dan Kecamatan agar bisa diakses di view
         $kelurahanIds = $data->pluck('kelurahan_id');

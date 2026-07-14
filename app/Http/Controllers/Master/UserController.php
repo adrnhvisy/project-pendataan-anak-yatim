@@ -18,7 +18,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with(['roles', 'provinsi', 'kabupaten', 'kecamatan', 'kelurahan'])->latest()->paginate(15);
+        $users = User::with(['roles', 'provinsi', 'kabupaten', 'kecamatan', 'kelurahan'])->latest()->paginate(10);
         return view('pages.users.index', compact('users'));
     }
 

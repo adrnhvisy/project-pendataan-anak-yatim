@@ -24,7 +24,7 @@ class VerifikasiController extends Controller
         }
 
         // PERBAIKAN: Tambahkan withQueryString()
-        $anak = $query->paginate(15)->withQueryString();
+        $anak = $query->paginate(10)->withQueryString();
         return view('pages.verifikasi.index', compact('anak'));
     }
 

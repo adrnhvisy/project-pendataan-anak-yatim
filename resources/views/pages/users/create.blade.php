@@ -13,7 +13,8 @@
                     
                     @include('pages.users.form')
 
-                    <div class="mt-6 flex justify-end">
+                    <div class="mt-6 flex justify-end gap-3">
+                        <a href="{{ route('users.index') }}" class="px-4 py-2 border border-gray-300 rounded-lg text-sm">Batal</a>
                         <button type="submit" 
                                 :disabled="loading"
                                 class="bg-indigo-600 text-white px-4 py-2 rounded flex items-center transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"

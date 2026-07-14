@@ -34,8 +34,7 @@
                             class="w-full mt-1 border-[#E2E8F0] rounded-lg focus:ring-[#004ac6] focus:border-[#004ac6]">
                     </div>
                     <div class="pt-4 flex justify-end gap-3">
-                        <a href="{{ route('wilayah.index') }}"
-                            class="px-4 py-2 border border-gray-300 rounded-lg text-sm">Batal</a>
+                        <a href="{{ route('wilayah.index') }}" class="px-4 py-2 border border-gray-300 rounded-lg text-sm">Batal</a>
                         <button type="submit"
                             class="px-4 py-2 bg-[#004ac6] text-white rounded-lg text-sm">Simpan</button>
                     </div>

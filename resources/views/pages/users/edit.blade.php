@@ -17,8 +17,10 @@
                 <form action="{{ route('users.update', $user->id) }}" method="POST" class="p-6">
                     @csrf @method('PUT')
                     @include('pages.users.form', ['user' => $user])
-                    <div class="mt-6 flex justify-end"><button type="submit"
-                            class="bg-indigo-600 text-white px-4 py-2 rounded">Perbarui</button></div>
+                    <div class="mt-6 flex justify-end gap-3">
+                        <a href="{{ route('users.index') }}" class="px-4 py-2 border border-gray-300 rounded-lg text-sm">Batal</a>
+                        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded">Perbarui</button>
+                    </div>
                 </form>
             </div>
         </div>

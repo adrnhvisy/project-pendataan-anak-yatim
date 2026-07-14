@@ -63,7 +63,7 @@ class AnakController extends Controller
             });
         });
 
-        $anak = $query->paginate(15)->withQueryString();
+        $anak = $query->paginate(10)->withQueryString();
         return view('pages.anak.index', compact('anak'));
     }
 
