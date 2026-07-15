@@ -30,7 +30,8 @@
                             'border-green-500 focus:border-green-500 focus:ring-green-500': nikAyah.length === 16 && /^\d+$/.test(nikAyah),
                             'border-[#E2E8F0]': nikAyah.length === 0 
                         }"
-                        class="mt-1 block w-full rounded-lg shadow-sm sm:text-sm transition-colors duration-200">
+                        class="mt-1 block w-full rounded-lg shadow-sm sm:text-sm transition-colors duration-200"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     <p x-show="nikAyah.length > 0 && (nikAyah.length !== 16 || !/^\d+$/.test(nikAyah))" class="mt-1 text-sm text-[#EF4444]">NIK harus 16 digit angka.</p>
                     <p x-show="nikAyah.length === 16 && /^\d+$/.test(nikAyah)" class="mt-1 text-sm text-green-600">NIK valid.</p>
                     @error('nik_ayah') <p class="mt-1 text-sm text-[#EF4444]">{{ $message }}</p> @enderror
@@ -72,7 +73,8 @@
                             'border-green-500 focus:border-green-500 focus:ring-green-500': nikIbu.length === 16 && /^\d+$/.test(nikIbu),
                             'border-[#E2E8F0]': nikIbu.length === 0 
                         }"
-                        class="mt-1 block w-full rounded-lg shadow-sm sm:text-sm transition-colors duration-200">
+                        class="mt-1 block w-full rounded-lg shadow-sm sm:text-sm transition-colors duration-200"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     <p x-show="nikIbu.length > 0 && (nikIbu.length !== 16 || !/^\d+$/.test(nikIbu))" class="mt-1 text-sm text-[#EF4444]">NIK harus 16 digit angka.</p>
                     <p x-show="nikIbu.length === 16 && /^\d+$/.test(nikIbu)" class="mt-1 text-sm text-green-600">NIK valid.</p>
                     @error('nik_ibu') <p class="mt-1 text-sm text-[#EF4444]">{{ $message }}</p> @enderror

@@ -22,13 +22,22 @@
                     <span class="block sm:inline">{{ session('success') }}</span>
                 </div>
             @endif
+            
+            @if(session('error'))
+                <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mx-4 sm:mx-0" role="alert">
+                    <span class="block sm:inline">{{ session('error') }}</span>
+                </div>
+            @endif
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-[#e5eeff] mx-4 sm:mx-0">
                 <div class="p-4 sm:p-6 border-b border-[#e5eeff]">
-                    
+
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-                        <form method="GET" action="{{ route('anak.index') }}" class="w-full max-w-md">
-                            <div class="relative">
+                        
+                        <!-- Form Pencarian dan Filter -->
+                        <form method="GET" action="{{ route('anak.index') }}" class="w-full max-w-2xl flex flex-col sm:flex-row gap-2">
+                            <!-- Input Pencarian Teks -->
+                            <div class="relative flex-1">
                                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                     <svg class="w-4 h-4 text-gray-500" aria-hidden="true"
                                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -40,10 +49,23 @@
                                     class="block w-full p-2 pl-10 text-sm text-gray-900 border border-[#E2E8F0] rounded-lg focus:ring-[#004ac6] focus:border-[#004ac6]"
                                     placeholder="Cari NIK atau Nama...">
                             </div>
+
+                            <!-- Dropdown Filter Kelurahan -->
+                            <select name="kelurahan" onchange="this.form.submit()" 
+                                class="block w-full sm:w-auto p-2 text-sm text-gray-900 border border-[#E2E8F0] rounded-lg focus:ring-[#004ac6] focus:border-[#004ac6]">
+                                <option value="">Semua Kelurahan</option>
+                                
+                                <!-- Looping data kelurahan dari database -->
+                                @foreach($kelurahans as $kel)
+                                    <option value="{{ $kel->id }}" {{ request('kelurahan') == $kel->id ? 'selected' : '' }}>
+                                        {{ $kel->nama_kelurahan }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </form>
-                        
+
                         <div class="w-full sm:w-auto text-left sm:text-right">
-                            @if (request('search'))
+                            @if (request('search') || request('kelurahan'))
                                 <a href="{{ route('anak.index') }}" class="text-sm text-[#004ac6] hover:underline">
                                     Reset pencarian
                                 </a>
@@ -59,7 +81,6 @@
                                     <th scope="col" class="px-6 py-3 whitespace-nowrap">Nama & NIK</th>
                                     <th scope="col" class="px-6 py-3 whitespace-nowrap">Umur</th>
                                     <th scope="col" class="px-6 py-3 whitespace-nowrap">Orang Tua</th>
-                                    <th scope="col" class="px-6 py-3 whitespace-nowrap">Status Data</th>
                                     <th scope="col" class="px-6 py-3 whitespace-nowrap text-right">Aksi</th>
                                 </tr>
                             </thead>
@@ -74,7 +95,19 @@
                                         </td>
 
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            {{ \Carbon\Carbon::parse($item->tanggal_lahir)->age }} Tahun
+                                            @php
+                                                $umur = \Carbon\Carbon::parse($item->tanggal_lahir)->age;
+                                            @endphp
+
+                                            @if($umur > 18)
+                                                <span class="text-red-600 font-bold">
+                                                    {{ $umur }} Tahun (Melebihi Batas Umur)
+                                                </span>
+                                            @else
+                                                <span class="text-gray-900">
+                                                    {{ $umur }} Tahun
+                                                </span>
+                                            @endif
                                         </td>
 
                                         <td class="px-6 py-4 text-xs min-w-[150px]">
@@ -88,21 +121,6 @@
                                             </div>
                                         </td>
 
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            @php
-                                                $badgeColor = match ($item->status_data) {
-                                                    'Draft' => 'bg-gray-100 text-gray-800',
-                                                    'Pending' => 'bg-yellow-100 text-yellow-800',
-                                                    'Disetujui' => 'bg-green-100 text-green-800',
-                                                    'Ditolak' => 'bg-red-100 text-red-800',
-                                                    default => 'bg-gray-100 text-gray-800'
-                                                };
-                                            @endphp
-                                            <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $badgeColor }}">
-                                                {{ $item->status_data }}
-                                            </span>
-                                        </td>
-
                                         <td class="px-6 py-4 text-right space-x-3 whitespace-nowrap">
                                             <a href="{{ route('anak.show', $item->id) }}"
                                                 class="font-medium text-[#004ac6] hover:underline">Detail</a>
@@ -111,6 +129,17 @@
                                                 <a href="{{ route('anak.edit', $item->id) }}"
                                                     class="font-medium text-yellow-600 hover:underline">Edit</a>
                                             @endif
+                                            <form action="{{ route('anak.destroy', $item->id) }}" method="POST"
+                                                class="inline-block form-hapus"
+                                                data-confirm-message="Apakah Anda yakin ingin menghapus data atas nama {{ $item->nama_lengkap }}? SELURUH data terkait seperti alamat, orang tua, dokumen, dan riwayat akan ikut terhapus permanen.">
+                                                @csrf
+                                                @method('DELETE')
+
+                                                <button type="submit"
+                                                    class="text-red-600 hover:underline">
+                                                    Hapus Data
+                                                </button>
+                                            </form>
                                             @endrole
                                         </td>
                                     </tr>
@@ -128,7 +157,7 @@
                                             </div>
                                         </td>
                                     </tr>
-                                @endforelse
+                                @endempty
                             </tbody>
                         </table>
                     </div>

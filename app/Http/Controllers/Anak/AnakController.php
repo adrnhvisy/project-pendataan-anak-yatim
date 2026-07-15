@@ -20,6 +20,16 @@ class AnakController extends Controller
     {
         $user = $request->user();
         $query = Anak::with(['alamatDomisili.kelurahan', 'orangTua', 'pembuatData'])->latest();
+        $kelurahans = Kelurahan::orderBy('nama_kelurahan', 'asc')->get();
+
+        // --- PERBAIKAN FILTER KELURAHAN ---
+        // Menggunakan whereHas untuk mencari kelurahan_id melalui tabel relasi alamatDomisili
+        if ($request->filled('kelurahan')) {
+            $query->whereHas('alamatDomisili', function ($q) use ($request) {
+                $q->where('kelurahan_id', $request->kelurahan);
+            });
+        }
+        // ----------------------------------
 
         // Pastikan admin bisa melihat semuanya
         if ($user->hasRole('admin')) {
@@ -64,7 +74,7 @@ class AnakController extends Controller
         });
 
         $anak = $query->paginate(10)->withQueryString();
-        return view('pages.anak.index', compact('anak'));
+        return view('pages.anak.index', compact('anak', 'kelurahans'));
     }
 
     public function create()
@@ -377,4 +387,62 @@ class AnakController extends Controller
 
         return redirect()->route('anak.index')->with('success', 'Data berhasil diajukan untuk verifikasi.');
     }
+
+    public function destroy($id, Request $request)
+    {
+        try {
+            // Memulai transaksi database agar penghapusan aman
+            DB::beginTransaction();
+
+            // Cari data anak berdasarkan ID
+            $anak = Anak::findOrFail($id);
+
+            // 1. Hapus file fisik dokumen (PDF/JPG) dari server (Opsional, sesuaikan nama field-mu)
+            // Asumsi: relasi dokumen() mereturn banyak data, dan nama field untuk path file adalah 'file_path'
+            foreach ($anak->dokumen as $dok) {
+                if (Storage::disk('public')->exists($dok->file_path)) {
+                    Storage::disk('public')->delete($dok->file_path);
+                }
+            }
+
+            // 2. Hapus data pada tabel relasi yang bergantung pada id anak
+            $anak->orangTua()->delete();
+            $anak->wali()->delete();
+            $anak->dokumen()->delete();
+            $anak->historiStatus()->delete();
+
+            // 3. Simpan ID alamat sebelum data anak dihapus (karena restrictOnDelete)
+            $alamatId = $anak->alamat_domisili_id;
+
+            // 4. Hapus data utama anak
+            $anak->delete();
+
+            // 5. Setelah anak dihapus, hapus data alamat domisili
+            if ($alamatId) {
+                Alamat::where('id', $alamatId)->delete();
+            }
+
+            AuditLog::create([
+                'user_id' => auth()->id(), // Menyimpan ID admin yang sedang login
+                'action' => 'Delete',   // Jenis aktivitas
+                'module' => 'Data Anak', // Modul yang sedang diakses
+                'description' => 'Menghapus data anak atas nama ' . $anak->nama_lengkap . ' (ID: ' . $id . ') beserta seluruh relasinya.',
+                'ip_address' => $request->ip()
+            ]);
+
+            // Jika semua langkah di atas berhasil, simpan permanen perubahan ke database
+            DB::commit();
+
+            // Kembalikan pengguna ke halaman daftar anak dengan pesan sukses
+            return redirect()->route('anak.index')->with('success', 'Data anak beserta seluruh data terkait (alamat, orang tua, wali, dokumen) berhasil dihapus secara permanen.');
+
+        } catch (\Exception $e) {
+            // Jika ada error di tengah jalan, batalkan semua proses hapus
+            DB::rollBack();
+
+            // Kembalikan pengguna dengan pesan error
+            return redirect()->route('anak.index')->with('error', 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage());
+        }
+    }
+
 }

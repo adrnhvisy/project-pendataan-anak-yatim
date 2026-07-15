@@ -22,7 +22,8 @@
                       'border-green-500 focus:border-green-500 focus:ring-green-500': nikWali.length === 16 && /^\d+$/.test(nikWali) 
                   }"
                 class="mt-1 block w-full border-[#E2E8F0] focus:border-[#004ac6] focus:ring-[#004ac6] rounded-lg transition-colors duration-200"
-                value="{{ old('nik_wali', $anak->wali->nik ?? '') }}" placeholder="16 digit NIK" />
+                value="{{ old('nik_wali', $anak->wali->nik ?? '') }}" placeholder="16 digit NIK"
+                oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
 
             <!-- Pesan Peringatan Real-Time -->
             <p x-show="nikWali.length > 0 && (nikWali.length !== 16 || !/^\d+$/.test(nikWali))"

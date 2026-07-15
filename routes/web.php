@@ -39,6 +39,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/{anak}/submit', [AnakController::class, 'submit'])->name('submit')->middleware('role:pendamping');
     });
     Route::resource('anak', AnakController::class)->middleware(['role:kesra|pendamping|kecamatan'])->except(['destroy']); // Zero Deletion policy
+    Route::delete('/anak/{id}', [AnakController::class, 'destroy'])->middleware(['role:pendamping'])->name('anak.destroy');
 
     // ==========================================
     // VERIFIKASI (Khusus Kesra)
