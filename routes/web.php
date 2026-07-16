@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Sistem\AuditLogController;
+use App\Models\Anak;
+use App\Models\Kelurahan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Anak\AnakController;
@@ -13,7 +15,20 @@ use App\Http\Controllers\Master\PengaturanController;
 use App\Http\Controllers\Laporan\LaporanController;
 
 Route::get('/', function () {
-    return redirect()->route('login');
+    // 1. Total semua anak
+    $totalAnak = Anak::count(); 
+    
+    // 2. Hitung jumlah dokumen/anak yang sudah disetujui
+    $anakDisetujui = Anak::where('status_data', 'Disetujui')->count();
+    
+    // Hitung persentase (menggunakan ternary operator untuk mencegah error pembagian dengan 0 jika data masih kosong)
+    $persentaseVerifikasi = $totalAnak > 0 ? round(($anakDisetujui / $totalAnak) * 100) : 0;
+
+    // 3. Hitung total kecamatan yang terdaftar
+    $totalKelurahan = Kelurahan::count();
+
+    // Kirim semua variabel ke tampilan 'welcome'
+    return view('welcome', compact('totalAnak', 'persentaseVerifikasi', 'totalKelurahan'));
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

@@ -50,6 +50,7 @@
                                     placeholder="Cari NIK atau Nama...">
                             </div>
 
+                            @role('kesra|kecamatan')
                             <!-- Dropdown Filter Kelurahan -->
                             <select name="kelurahan" onchange="this.form.submit()" 
                                 class="block w-full sm:w-auto p-2 text-sm text-gray-900 border border-[#E2E8F0] rounded-lg focus:ring-[#004ac6] focus:border-[#004ac6]">
@@ -62,6 +63,7 @@
                                     </option>
                                 @endforeach
                             </select>
+                            @endrole
                         </form>
 
                         <div class="w-full sm:w-auto text-left sm:text-right">

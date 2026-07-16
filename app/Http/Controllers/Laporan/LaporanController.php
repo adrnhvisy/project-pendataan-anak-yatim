@@ -55,6 +55,8 @@ class LaporanController extends Controller
         $request->validate([
             'filter' => 'required|in:all,under18',
             'type' => 'required|in:excel,pdf',
+            'only_verified' => 'nullable',
+            'tahun' => 'nullable',
         ]);
 
         $query = Anak::with([
@@ -62,29 +64,31 @@ class LaporanController extends Controller
             'pembuatData'
         ]);
 
-        // TAMBAHKAN INI: Filter agar hanya data yang Disetujui yang diekspor
-        $query->where('status_data', 'Disetujui');
+        // 1. Filter Hanya Data Disetujui
+        if ($request->filled('only_verified')) {
+            $query->where('status_data', 'Disetujui');
+        }
 
-        // Filter umur (jika dipilih)
+        // 2. Filter Tahun (asumsi berdasarkan created_at)
+        if ($request->filled('tahun') && $request->tahun !== 'all') {
+            $query->whereYear('created_at', $request->tahun);
+        }
+
+        // 3. Filter umur
         if ($request->filter === 'under18') {
-            $query->whereDate(
-                'tanggal_lahir',
-                '>',
-                now()->subYears(18)
-            );
+            $query->whereDate('tanggal_lahir', '>', now()->subYears(18));
         }
 
         $data = $query->get();
 
-        // Jika data kosong, beri feedback agar user tidak mendownload file kosong
         if ($data->isEmpty()) {
-            return back()->with('error', 'Tidak ada data dengan status "Disetujui" yang ditemukan untuk filter tersebut.');
+            return back()->with('error', 'Tidak ada data ditemukan untuk kriteria yang dipilih.');
         }
 
         if ($request->type === 'excel') {
             return Excel::download(
-                new AnakExport($request->filter),
-                'Laporan_Data_Anak_Valid_' . now()->format('Ymd_His') . '.xlsx'
+                new AnakExport($request->filter, $request->only_verified, $request->tahun),
+                'Laporan_Data_Anak_' . now()->format('Ymd_His') . '.xlsx'
             );
         }
 
@@ -96,9 +100,7 @@ class LaporanController extends Controller
                 'tanggal' => now()->format('d/m/Y H:i'),
             ])->setPaper('a4', 'landscape');
 
-            return $pdf->download(
-                'Laporan_Data_Anak_Valid_' . now()->format('Ymd_His') . '.pdf'
-            );
+            return $pdf->download('Laporan_Data_Anak_' . now()->format('Ymd_His') . '.pdf');
         }
 
         abort(400, 'Tipe export tidak valid.');

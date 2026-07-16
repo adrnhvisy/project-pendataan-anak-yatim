@@ -16,23 +16,34 @@ use Carbon\Carbon;
 class AnakExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
 {
     protected $filter;
+    protected $onlyVerified;
+    protected $tahun;
 
-    public function __construct($filter)
+    // Menambahkan parameter baru pada constructor
+    public function __construct($filter, $onlyVerified, $tahun)
     {
         $this->filter = $filter;
+        $this->onlyVerified = $onlyVerified;
+        $this->tahun = $tahun;
     }
 
     public function collection()
     {
-        // 1. Eager loading untuk data anak
-        // 2. TAMBAHKAN FILTER: where('status_data', 'Disetujui') agar selalu memfilter data yang valid
-        $query = Anak::with(['alamatDomisili.kelurahan.kecamatan', 'pembuatData', 'orangTua'])
-                     ->where('status_data', 'Disetujui'); 
+        $query = Anak::with(['alamatDomisili.kelurahan.kecamatan', 'pembuatData', 'orangTua']);
 
-        // Filter umur (jika dipilih)
+        // Filter status verifikasi (disetujui)
+        if ($this->onlyVerified) {
+            $query->where('status_data', 'Disetujui');
+        }
+
+        // Filter tahun
+        if ($this->tahun && $this->tahun !== 'all') {
+            $query->whereYear('created_at', $this->tahun);
+        }
+
+        // Filter umur
         if ($this->filter === 'under18') {
-            $eighteenYearsAgo = Carbon::today()->subYears(18);
-            $query->where('tanggal_lahir', '>', $eighteenYearsAgo);
+            $query->whereDate('tanggal_lahir', '>', Carbon::today()->subYears(18));
         }
 
         return $query->get();
@@ -89,4 +100,4 @@ class AnakExport implements FromCollection, WithHeadings, WithMapping, ShouldAut
             $anak->created_at->format('d/m/Y'),
         ];
     }
-}
+}   

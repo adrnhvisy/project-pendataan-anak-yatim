@@ -8,9 +8,8 @@
     <div class="py-12 bg-[#f8f9ff] min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-
-
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Kartu Laporan (Tetap) -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-[#e5eeff] hover:shadow-md transition">
                     <div class="w-12 h-12 bg-blue-100 text-[#004ac6] rounded-lg flex items-center justify-center mb-4">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,32 +38,58 @@
                         class="text-sm font-semibold text-[#004ac6] hover:underline">Lihat Laporan &rarr;</a>
                 </div>
             </div>
+
             @if(session('error'))
                 <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-lg text-sm">
                     {{ session('error') }}
                 </div>
             @endif
+
             <form action="{{ route('laporan.export') }}" method="POST" id="exportForm" onsubmit="handleExport(this)"
                 class="bg-white p-6 rounded-xl shadow-sm border border-[#e5eeff]">
                 @csrf
                 <div class="border-b border-gray-100 pb-4 mb-4">
                     <h3 class="font-bold text-[#0b1c30] text-lg">Export Data</h3>
-                    <p class="text-xs text-gray-500">Pilih kriteria data yang ingin Anda ekspor ke format Excel atau
-                        PDF.</p>
+                    <p class="text-xs text-gray-500">Pilih kriteria data untuk diekspor ke Excel atau PDF.</p>
                 </div>
 
-                <div class="space-y-3 mb-6">
-                    <label class="flex items-center space-x-3 cursor-pointer">
-                        <input type="radio" name="filter" value="all" checked
-                            class="text-[#004ac6] focus:ring-[#004ac6]">
-                        <span class="text-sm text-gray-700 font-medium">Export Semua Data</span>
-                    </label>
-                    <label class="flex items-center space-x-3 cursor-pointer">
-                        <input type="radio" name="filter" value="under18" class="text-[#004ac6] focus:ring-[#004ac6]">
-                        <span class="text-sm text-gray-700 font-medium">Export Anak di bawah 18 Tahun</span>
-                    </label>
+                <!-- Pilihan Filter -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+
+                    <!-- Kolom 1: Kriteria Utama -->
+                    <div class="space-y-3">
+                        <label class="block text-sm font-semibold text-gray-700">Kriteria Data</label>
+                        <label class="flex items-center space-x-3 cursor-pointer pt-2">
+                            <input type="checkbox" name="only_verified" value="1"
+                                class="text-[#004ac6] focus:ring-[#004ac6] rounded">
+                            <span class="text-sm text-gray-700 font-medium">Hanya Data Disetujui / Terverifikasi</span>
+                        </label>
+                            <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="filter" value="all" checked
+                                class="text-[#004ac6] focus:ring-[#004ac6]">
+                            <span class="text-sm text-gray-700">Export Semua Data</span>
+                        </label>
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="filter" value="under18"
+                                class="text-[#004ac6] focus:ring-[#004ac6]">
+                            <span class="text-sm text-gray-700">Export Anak di bawah 18 Tahun</span>
+                        </label>
+                    </div>
+            
+                    <!-- Kolom 2: Pilihan Tahun -->
+                    <div class="space-y-3">
+                        <label class="block text-sm font-semibold text-gray-700">Pilih Tahun</label>
+                        <select name="tahun"
+                            class="w-full border border-gray-300 rounded-lg text-sm focus:ring-[#004ac6] focus:border-[#004ac6]">
+                            <option value="all">Semua Tahun</option>
+                            @for ($i = date('Y'); $i >= 2024; $i--)
+                                <option value="{{ $i }}">{{ $i }}</option>
+                            @endfor
+                        </select>
+                    </div>
                 </div>
 
+                <!-- Tombol Aksi -->
                 <div class="flex gap-3">
                     <button type="submit" name="type" value="excel"
                         class="bg-green-600 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-green-700 transition disabled:opacity-50">
@@ -76,31 +101,30 @@
                     </button>
                 </div>
             </form>
-
         </div>
     </div>
 
-<script>
-    function handleExport(form) {
-        const buttons = form.querySelectorAll('button[type="submit"]');
+    <script>
+        function handleExport(form) {
+            const buttons = form.querySelectorAll('button[type="submit"]');
 
-        buttons.forEach(btn => {
-            btn.dataset.originalText = btn.innerText;
-            btn.innerText = 'Memproses...';
-        });
-
-        setTimeout(() => {
             buttons.forEach(btn => {
-                btn.disabled = true;
+                btn.dataset.originalText = btn.innerText;
+                btn.innerText = 'Memproses...';
             });
-        }, 100);
 
-        setTimeout(() => {
-            buttons.forEach(btn => {
-                btn.disabled = false;
-                btn.innerText = btn.dataset.originalText;
-            });
-        }, 4000);
-    }
-</script>
+            setTimeout(() => {
+                buttons.forEach(btn => {
+                    btn.disabled = true;
+                });
+            }, 100);
+
+            setTimeout(() => {
+                buttons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.innerText = btn.dataset.originalText;
+                });
+            }, 4000);
+        }
+    </script>
 </x-app-layout>
