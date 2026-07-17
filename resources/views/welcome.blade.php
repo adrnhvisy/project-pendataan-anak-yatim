@@ -385,7 +385,7 @@
                             </div>
                         </div>
 
-                        
+
                     </div>
                 </div>
             </div>
@@ -471,8 +471,8 @@
                 <!-- 
             Pastikan file 'logo-pnp.png' sudah kamu letakkan di folder 'public/images/'
         -->
-                <img src="{{ asset('storage/logo-pnp/4e94f6a69798aa0b85cd631ef335a08b.jpg') }}" alt="Logo Politeknik Negeri Padang"
-                    class="w-[500px] h-auto object-contain">
+                <img src="{{ asset('storage/logo-pnp/4e94f6a69798aa0b85cd631ef335a08b.jpg') }}"
+                    alt="Logo Politeknik Negeri Padang" class="w-[500px] h-auto object-contain">
             </div>
 
             <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -486,6 +486,8 @@
                 <div class="max-w-md mx-auto mb-12 sm:mb-16 reveal">
                     <div
                         class="relative bg-gradient-to-br from-accent to-accent-deep rounded-2xl p-7 sm:p-8 text-center shadow-lg shadow-accent/20 transition-transform duration-300 hover:-translate-y-1">
+                        <img src="{{ asset('storage/logo-pnp/4e94f6a69798aa0b85cd631ef335a08b.jpg') }}" alt="Logo PNP"
+                            class="absolute top-4 right-4 w-8 h-8 object-contain opacity-80">
                         <span
                             class="inline-block text-[11px] font-bold text-white/70 uppercase tracking-widest mb-4">Dosen
                             pembimbing</span>
@@ -510,6 +512,8 @@
 
                     <div
                         class="group bg-paper-raised p-6 sm:p-7 rounded-2xl border-2 border-accent/20 hover:border-accent/50 hover:shadow-xl hover:-translate-y-1.5 transition duration-300 text-center reveal">
+                        <img src="{{ asset('storage/logo-pnp/4e94f6a69798aa0b85cd631ef335a08b.jpg') }}" alt="Logo PNP"
+                            class="absolute top-4 right-4 w-8 h-8 object-contain opacity-80">
                         <span
                             class="inline-block bg-accent text-white text-[11px] px-3 py-1 rounded-full font-bold tracking-wide mb-5">KETUA</span>
                         <div
@@ -530,6 +534,8 @@
 
                     <div class="group bg-paper-raised p-6 sm:p-7 rounded-2xl border-2 border-line hover:border-accent/50 hover:shadow-xl hover:-translate-y-1.5 transition duration-300 text-center reveal"
                         style="transition-delay:.1s">
+                        <img src="{{ asset('storage/logo-pnp/4e94f6a69798aa0b85cd631ef335a08b.jpg') }}" alt="Logo PNP"
+                            class="absolute top-4 right-4 w-8 h-8 object-contain opacity-80">
                         <span
                             class="inline-block bg-paper text-ink-soft text-[11px] px-3 py-1 rounded-full font-bold tracking-wide mb-5">ANGGOTA</span>
                         <div
@@ -550,6 +556,8 @@
 
                     <div class="group bg-paper-raised p-6 sm:p-7 rounded-2xl border-2 border-line hover:border-accent/50 hover:shadow-xl hover:-translate-y-1.5 transition duration-300 text-center reveal sm:col-span-2 md:col-span-1"
                         style="transition-delay:.2s">
+                        <img src="{{ asset('storage/logo-pnp/4e94f6a69798aa0b85cd631ef335a08b.jpg') }}" alt="Logo PNP"
+                            class="absolute top-4 right-4 w-8 h-8 object-contain opacity-80">
                         <span
                             class="inline-block bg-paper text-ink-soft text-[11px] px-3 py-1 rounded-full font-bold tracking-wide mb-5">ANGGOTA</span>
                         <div
