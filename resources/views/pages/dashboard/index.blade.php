@@ -14,10 +14,6 @@
                     <p class="text-4xl font-bold text-[#004ac6] mt-2">{{ $stats['total'] ?? 0 }}</p>
                 </div>
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-[#e5eeff]">
-                    <p class="text-sm font-medium text-[#434655] uppercase tracking-wider">Draft</p>
-                    <p class="text-4xl font-bold text-gray-600 mt-2">{{ $stats['draft'] ?? 0 }}</p>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-[#e5eeff]">
                     <p class="text-sm font-medium text-[#434655] uppercase tracking-wider">Menunggu Verifikasi</p>
                     <p class="text-4xl font-bold text-yellow-600 mt-2">{{ $stats['pending'] ?? 0 }}</p>
                 </div>

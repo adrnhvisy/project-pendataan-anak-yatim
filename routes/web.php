@@ -16,11 +16,11 @@ use App\Http\Controllers\Laporan\LaporanController;
 
 Route::get('/', function () {
     // 1. Total semua anak
-    $totalAnak = Anak::count(); 
-    
+    $totalAnak = Anak::count();
+
     // 2. Hitung jumlah dokumen/anak yang sudah disetujui
     $anakDisetujui = Anak::where('status_data', 'Disetujui')->count();
-    
+
     // Hitung persentase (menggunakan ternary operator untuk mencegah error pembagian dengan 0 jika data masih kosong)
     $persentaseVerifikasi = $totalAnak > 0 ? round(($anakDisetujui / $totalAnak) * 100) : 0;
 
@@ -99,6 +99,30 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('roles/{role}/permissions', [RolePermissionController::class, 'updatePermissions'])->name('roles.permissions.update');
 
         // Tambahkan di dalam route group superadmin
+        // Tambahkan rute khusus ini DI ATAS Route::resource wilayah
+        Route::get('wilayah/provinsi/create', [\App\Http\Controllers\Master\WilayahController::class, 'createProvinsi'])->name('wilayah.provinsi.create');
+        // Rute Provinsi
+        Route::get('wilayah/provinsi/{id}/edit', [\App\Http\Controllers\Master\WilayahController::class, 'editProvinsi'])->name('wilayah.provinsi.edit');
+        Route::put('wilayah/provinsi/{id}', [\App\Http\Controllers\Master\WilayahController::class, 'updateProvinsi'])->name('wilayah.provinsi.update');
+        Route::post('wilayah/provinsi', [\App\Http\Controllers\Master\WilayahController::class, 'storeProvinsi'])->name('wilayah.provinsi.store');
+        Route::delete('wilayah/provinsi/{id}', [\App\Http\Controllers\Master\WilayahController::class, 'destroyProvinsi'])->name('wilayah.provinsi.destroy');
+
+        Route::get('wilayah/kecamatan/create', [\App\Http\Controllers\Master\WilayahController::class, 'createKecamatan'])->name('wilayah.kecamatan.create');
+        // Rute Kecamatan
+        Route::get('wilayah/kecamatan/{id}/edit', [\App\Http\Controllers\Master\WilayahController::class, 'editKecamatan'])->name('wilayah.kecamatan.edit');
+        Route::put('wilayah/kecamatan/{id}', [\App\Http\Controllers\Master\WilayahController::class, 'updateKecamatan'])->name('wilayah.kecamatan.update');
+        Route::post('wilayah/kecamatan', [\App\Http\Controllers\Master\WilayahController::class, 'storeKecamatan'])->name('wilayah.kecamatan.store');
+        Route::delete('wilayah/kecamatan/{id}', [\App\Http\Controllers\Master\WilayahController::class, 'destroyKecamatan'])->name('wilayah.kecamatan.destroy');
+
+        // Tambahkan di atas Route::resource wilayah
+        Route::get('wilayah/kabupaten/create', [\App\Http\Controllers\Master\WilayahController::class, 'createKabupaten'])->name('wilayah.kabupaten.create');
+        // Rute Kabupaten
+        Route::get('wilayah/kabupaten/{id}/edit', [\App\Http\Controllers\Master\WilayahController::class, 'editKabupaten'])->name('wilayah.kabupaten.edit');
+        Route::put('wilayah/kabupaten/{id}', [\App\Http\Controllers\Master\WilayahController::class, 'updateKabupaten'])->name('wilayah.kabupaten.update');
+        Route::post('wilayah/kabupaten', [\App\Http\Controllers\Master\WilayahController::class, 'storeKabupaten'])->name('wilayah.kabupaten.store');
+        Route::delete('wilayah/kabupaten/{id}', [\App\Http\Controllers\Master\WilayahController::class, 'destroyKabupaten'])->name('wilayah.kabupaten.destroy');
+
+        // Ini adalah rute resource aslimu (untuk Kelurahan)
         Route::resource('wilayah', \App\Http\Controllers\Master\WilayahController::class);
 
         // Pengaturan Sistem
@@ -115,3 +139,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 require __DIR__ . '/auth.php';
+
+
+
+
+

@@ -9,6 +9,7 @@ use App\Models\Kecamatan;
 use App\Models\Kelurahan;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class RoleAndUserSeeder extends Seeder
 {
@@ -20,7 +21,7 @@ class RoleAndUserSeeder extends Seeder
             Role::firstOrCreate(['name' => $role]);
         }
 
-        // 2. Akun Superadmin
+        // 2. Akun Superadmin (Hanya 1)
         $superadmin = User::updateOrCreate(
             ['email' => 'admin@gmail.com'],
             [
@@ -31,44 +32,56 @@ class RoleAndUserSeeder extends Seeder
         );
         $superadmin->assignRole('superadmin');
 
-        // 3. Akun Kesra
-        // PERBAIKAN: Harus ada kabupaten_id agar filter di AnakController bekerja
-        $kabupaten = Kabupaten::first(); // Ambil sample kabupaten
-        $kesra = User::updateOrCreate(
-            ['email' => 'kesra@gmail.com'],
-            [
-                'name' => 'Kesra Kabupaten',
-                'password' => Hash::make('password123'),
-                'is_active' => true,
-                'kabupaten_id' => $kabupaten ? $kabupaten->id : null, 
-            ]
-        );
-        $kesra->assignRole('kesra');
+        // 3. Akun Kesra (1 untuk Kabupaten Pelalawan)
+        $kabupaten = Kabupaten::where('nama_kabupaten', 'Pelalawan')->first();
+        if ($kabupaten) {
+            $kesra = User::updateOrCreate(
+                ['email' => 'kesra@gmail.com'],
+                [
+                    'name' => 'Kesra Kabupaten Pelalawan',
+                    'password' => Hash::make('password123'),
+                    'is_active' => true,
+                    'kabupaten_id' => $kabupaten->id,
+                ]
+            );
+            $kesra->assignRole('kesra');
+        }
 
-        // 4. Akun Admin Kecamatan
-        $kecamatanData = Kecamatan::first();
-        $kecamatan = User::updateOrCreate(
-            ['email' => 'kecamatan@gmail.com'],
-            [
-                'name' => 'Admin Kecamatan',
-                'password' => Hash::make('password123'),
-                'is_active' => true,
-                'kecamatan_id' => $kecamatanData ? $kecamatanData->id : null,
-            ]
-        );
-        $kecamatan->assignRole('kecamatan');
+        // 4. Akun Admin Kecamatan (Satu akun untuk setiap kecamatan)
+        $kecamatans = Kecamatan::all();
+        foreach ($kecamatans as $kec) {
+            $slug = Str::slug($kec->nama_kecamatan);
+            $email = "kecamatan.{$slug}@gmail.com";
 
-        // 5. Akun Pendamping Kelurahan
-        $kelurahanData = Kelurahan::first();
-        $pendamping = User::updateOrCreate(
-            ['email' => 'pendamping@gmail.com'],
-            [
-                'name' => 'Pendamping Kelurahan',
-                'password' => Hash::make('password123'),
-                'is_active' => true,
-                'kelurahan_id' => $kelurahanData ? $kelurahanData->id : null,
-            ]
-        );
-        $pendamping->assignRole('pendamping');
+            $user = User::updateOrCreate(
+                ['email' => $email],
+                [
+                    'name' => 'Admin ' . $kec->nama_kecamatan,
+                    'password' => Hash::make('password123'),
+                    'is_active' => true,
+                    'kecamatan_id' => $kec->id,
+                ]
+            );
+            $user->assignRole('kecamatan');
+        }
+
+        // 5. Akun Pendamping Kelurahan (Satu akun untuk setiap kelurahan)
+        $kelurahans = Kelurahan::all();
+        foreach ($kelurahans as $kel) {
+            $slug = Str::slug($kel->nama_kelurahan);
+            // Menggunakan email unik berdasarkan nama kelurahan
+            $email = "pendamping.{$slug}@gmail.com";
+
+            $user = User::updateOrCreate(
+                ['email' => $email],
+                [
+                    'name' => 'Pendamping ' . $kel->nama_kelurahan,
+                    'password' => Hash::make('password123'),
+                    'is_active' => true,
+                    'kelurahan_id' => $kel->id,
+                ]
+            );
+            $user->assignRole('pendamping');
+        }
     }
 }
