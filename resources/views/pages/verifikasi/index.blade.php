@@ -21,7 +21,7 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-[#e5eeff]">
                 <div class="p-6 border-b border-[#e5eeff] bg-[#f8f9ff]">
-                    <p class="text-sm text-[#434655]">Berikut adalah data anak yatim yang telah diajukan oleh Admin Kelurahan dan menunggu verifikasi dari Kelurahan.</p>
+                    <p class="text-sm text-[#434655]">Berikut adalah data anak yatim yang telah diajukan oleh Admin Kelurahan dan menunggu verifikasi.</p>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-left text-[#434655]">

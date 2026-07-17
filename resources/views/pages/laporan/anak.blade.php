@@ -17,7 +17,6 @@
                         <x-input-label for="status_data" value="Filter Status Data" />
                         <select name="status_data" id="status_data" class="mt-1 block w-full border-[#E2E8F0] rounded-md shadow-sm focus:border-[#004ac6] focus:ring-[#004ac6]">
                             <option value="">Semua Status</option>
-                            <option value="Draft" {{ request('status_data') == 'Draft' ? 'selected' : '' }}>Draft</option>
                             <option value="Pending" {{ request('status_data') == 'Pending' ? 'selected' : '' }}>Menunggu Verifikasi (Pending)</option>
                             <option value="Disetujui" {{ request('status_data') == 'Disetujui' ? 'selected' : '' }}>Disetujui (Valid)</option>
                             <option value="Ditolak" {{ request('status_data') == 'Ditolak' ? 'selected' : '' }}>Ditolak (Revisi)</option>
