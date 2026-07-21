@@ -75,11 +75,10 @@ flowchart LR
     D --> E[Monitoring Kecamatan]
     E --> F[Verifikasi Admin Bupati]
     F --> G([Disetujui])
-    F --> H([Revisi])
-    F --> I([Ditolak])
+    F --> H([Ditolak])
 
     style A fill:#f9f9f9,stroke:#333,stroke-width:2px
     style G fill:#d4edda,stroke:#28a745
     style H fill:#fff3cd,stroke:#ffc107
-    style I fill:#f8d7da,stroke:#dc3545
+    
 ```
