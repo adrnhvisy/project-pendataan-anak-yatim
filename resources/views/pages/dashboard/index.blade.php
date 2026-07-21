@@ -8,19 +8,40 @@
     <div class="py-12 bg-[#f8f9ff] min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                <!-- Card Total Anak -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-[#e5eeff]">
                     <p class="text-sm font-medium text-[#434655] uppercase tracking-wider">Total Anak</p>
                     <p class="text-4xl font-bold text-[#004ac6] mt-2">{{ $stats['total'] ?? 0 }}</p>
                 </div>
+
+                <!-- Card Menunggu Verifikasi -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-[#e5eeff]">
                     <p class="text-sm font-medium text-[#434655] uppercase tracking-wider">Menunggu Verifikasi</p>
                     <p class="text-4xl font-bold text-yellow-600 mt-2">{{ $stats['pending'] ?? 0 }}</p>
                 </div>
+
+                <!-- Card Disetujui -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-[#e5eeff]">
                     <p class="text-sm font-medium text-[#434655] uppercase tracking-wider">Disetujui</p>
                     <p class="text-4xl font-bold text-green-600 mt-2">{{ $stats['disetujui'] ?? 0 }}</p>
                 </div>
+
+                <!-- Tampil khusus Kesra atau Superadmin (Total Kecamatan) -->
+                @if(auth()->user()->hasRole('kesra') || auth()->user()->hasRole('superadmin'))
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-[#e5eeff]">
+                        <p class="text-sm font-medium text-[#434655] uppercase tracking-wider">Total Kecamatan</p>
+                        <p class="text-4xl font-bold text-teal-600 mt-2">{{ $stats['total_kecamatan'] ?? 0 }}</p>
+                    </div>
+                @endif
+
+                <!-- Tampil untuk Kecamatan, Kesra, dan Superadmin (Total Kelurahan) -->
+                @if(!auth()->user()->hasRole('pendamping'))
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-[#e5eeff]">
+                        <p class="text-sm font-medium text-[#434655] uppercase tracking-wider">Total Kelurahan</p>
+                        <p class="text-4xl font-bold text-purple-600 mt-2">{{ $stats['total_kelurahan'] ?? 0 }}</p>
+                    </div>
+                @endif
             </div>
             @if(get_setting('buku_panduan'))
                 <div

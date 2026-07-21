@@ -6,15 +6,30 @@ use App\Exports\AnakExport;
 use App\Http\Controllers\Controller;
 use App\Models\Anak;
 use App\Models\AuditLog;
+use App\Models\Kecamatan;
+use App\Models\Kelurahan;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
 class LaporanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return view('pages.laporan.index');
+        $user = $request->user();
+        $kecamatans = [];
+        $kelurahans = [];
+
+        // Siapkan data wilayah berdasarkan role untuk dropdown
+        if ($user->hasRole('kesra') || $user->hasRole('superadmin')) {
+            // Kesra bisa melihat semua kecamatan (di kabupatennya jika ada filter kabupaten)
+            $kecamatans = Kecamatan::orderBy('nama_kecamatan', 'asc')->get();
+        } elseif ($user->hasRole('kecamatan')) {
+            // Kecamatan hanya melihat kelurahan di dalam wilayahnya
+            $kelurahans = Kelurahan::where('kecamatan_id', $user->kecamatan_id)->orderBy('nama_kelurahan', 'asc')->get();
+        }
+
+        return view('pages.laporan.index', compact('kecamatans', 'kelurahans'));
     }
 
     public function anak(Request $request)
@@ -50,6 +65,52 @@ class LaporanController extends Controller
         return view('pages.laporan.wilayah', compact('data'));
     }
 
+    public function getStats(Request $request)
+    {
+        $user = $request->user();
+        $kecamatanId = $request->kecamatan_id;
+        $kelurahanId = $request->kelurahan_id;
+
+        $query = Anak::query();
+
+        // Terapkan filter berdasarkan input wilayah
+        if ($kelurahanId) {
+            $query->whereHas('alamatDomisili', function ($q) use ($kelurahanId) {
+                $q->where('kelurahan_id', $kelurahanId);
+            });
+        } elseif ($kecamatanId) {
+            $query->whereHas('alamatDomisili.kelurahan', function ($q) use ($kecamatanId) {
+                $q->where('kecamatan_id', $kecamatanId);
+            });
+        } elseif ($user->hasRole('kecamatan')) {
+            // Default filter untuk kecamatan
+            $query->whereHas('alamatDomisili.kelurahan', function ($q) use ($user) {
+                $q->where('kecamatan_id', $user->kecamatan_id);
+            });
+        } elseif ($user->hasRole('pendamping')) {
+            // Default filter untuk pendamping
+            $query->whereHas('alamatDomisili', function ($q) use ($user) {
+                $q->where('kelurahan_id', $user->kelurahan_id);
+            });
+        }
+
+        // Hitung total dan disetujui
+        $total = (clone $query)->count();
+        $disetujui = (clone $query)->where('status_data', 'Disetujui')->count();
+
+        // Ambil list kelurahan jika request dari dropdown kecamatan
+        $kelurahans = [];
+        if ($kecamatanId && !$kelurahanId) {
+            $kelurahans = Kelurahan::where('kecamatan_id', $kecamatanId)->orderBy('nama_kelurahan', 'asc')->get();
+        }
+
+        return response()->json([
+            'total' => $total,
+            'disetujui' => $disetujui,
+            'kelurahans' => $kelurahans
+        ]);
+    }
+
     public function export(Request $request)
     {
         $request->validate([
@@ -59,22 +120,39 @@ class LaporanController extends Controller
             'tahun' => 'nullable',
         ]);
 
-        $query = Anak::with([
-            'alamatDomisili.kelurahan.kecamatan',
-            'pembuatData'
-        ]);
+        $user = $request->user();
+        $kecamatanId = $request->kecamatan_id;
+        $kelurahanId = $request->kelurahan_id;
 
-        // 1. Filter Hanya Data Disetujui
+        // Validasi keamanan: Pastikan user hanya mengekspor wilayahnya
+        if ($user->hasRole('pendamping')) {
+            $kelurahanId = $user->kelurahan_id;
+            $kecamatanId = null;
+        } elseif ($user->hasRole('kecamatan')) {
+            $kecamatanId = $user->kecamatan_id;
+        }
+
+        $query = Anak::with(['alamatDomisili.kelurahan.kecamatan', 'pembuatData']);
+
+        // Filter Wilayah di query pengecekan (sebelum diekspor)
+        if ($kelurahanId) {
+            $query->whereHas('alamatDomisili', function ($q) use ($kelurahanId) {
+                $q->where('kelurahan_id', $kelurahanId);
+            });
+        } elseif ($kecamatanId) {
+            $query->whereHas('alamatDomisili.kelurahan', function ($q) use ($kecamatanId) {
+                $q->where('kecamatan_id', $kecamatanId);
+            });
+        }
+
         if ($request->filled('only_verified')) {
             $query->where('status_data', 'Disetujui');
         }
 
-        // 2. Filter Tahun (asumsi berdasarkan created_at)
         if ($request->filled('tahun') && $request->tahun !== 'all') {
             $query->whereYear('created_at', $request->tahun);
         }
 
-        // 3. Filter umur
         if ($request->filter === 'under18') {
             $query->whereDate('tanggal_lahir', '>', now()->subYears(18));
         }
@@ -85,9 +163,10 @@ class LaporanController extends Controller
             return back()->with('error', 'Tidak ada data ditemukan untuk kriteria yang dipilih.');
         }
 
+        // --- Kirim parameter tambahan ke AnakExport ---
         if ($request->type === 'excel') {
             return Excel::download(
-                new AnakExport($request->filter, $request->only_verified, $request->tahun),
+                new AnakExport($request->filter, $request->only_verified, $request->tahun, $kecamatanId, $kelurahanId),
                 'Laporan_Data_Anak_' . now()->format('Ymd_His') . '.xlsx'
             );
         }

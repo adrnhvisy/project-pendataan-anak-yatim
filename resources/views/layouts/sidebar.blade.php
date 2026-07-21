@@ -62,7 +62,7 @@
             </div>
             @endrole
 
-            @role('kesra|kecamatan')
+            @role('kesra|kecamatan|pendamping')
             <div>
                 <p x-show="sidebarOpen" class="text-[10px] font-bold uppercase text-slate-400 px-3 mb-2 tracking-widest mt-4 whitespace-nowrap">Analitik</p>
                 <a href="{{ route('laporan.index') }}"

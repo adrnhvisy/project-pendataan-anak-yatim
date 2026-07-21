@@ -81,8 +81,8 @@
                                 <tr>
                                     <th scope="col" class="px-6 py-3 whitespace-nowrap">No</th>
                                     <th scope="col" class="px-6 py-3 whitespace-nowrap">Nama & NIK</th>
-                                    <th scope="col" class="px-6 py-3 whitespace-nowrap">Umur</th>
-                                    <th scope="col" class="px-6 py-3 whitespace-nowrap">Orang Tua</th>
+                                    <th scope="col" class="px-3 py-3 w-1 whitespace-nowrap">Umur</th>
+                                    <th scope="col" class="px-3 py-3 whitespace-nowrap">Orang Tua</th>
                                     <th scope="col" class="px-6 py-3 whitespace-nowrap text-right">Aksi</th>
                                 </tr>
                             </thead>
@@ -96,30 +96,58 @@
                                             <div class="text-xs text-gray-500">NIK: {{ $item->nik }}</div>
                                         </td>
 
-                                        <td class="px-6 py-4 whitespace-nowrap">
+                                        <td class="px-3 py-4 w-1 whitespace-nowrap">
                                             @php
-                                                $umur = \Carbon\Carbon::parse($item->tanggal_lahir)->age;
+                                                // Menghitung selisih tanggal lahir dengan tanggal hari ini
+                                                $birthDate = \Carbon\Carbon::parse($item->tanggal_lahir);
+                                                $ageDiff = $birthDate->diff(\Carbon\Carbon::now());
+                                                
+                                                $tahun = $ageDiff->y;
+                                                $bulan = $ageDiff->m;
+                                                $hari  = $ageDiff->d;
                                             @endphp
 
-                                            @if($umur > 18)
+                                            @if($tahun >= 18)
                                                 <span class="text-red-600 font-bold">
-                                                    {{ $umur }} Tahun (Melebihi Batas Umur)
+                                                    {{ $tahun }} Thn {{ $bulan }} Bln {{ $hari }} Hr (Melebihi Batas Umur)
                                                 </span>
                                             @else
                                                 <span class="text-gray-900">
-                                                    {{ $umur }} Tahun
+                                                    {{ $tahun }} Thn {{ $bulan }} Bln {{ $hari }} Hr
                                                 </span>
                                             @endif
                                         </td>
 
-                                        <td class="px-6 py-4 text-xs min-w-[150px]">
-                                            <div class="mb-1">
+                                        <td class="px-3 py-4 text-xs min-w-[150px]">
+                                            @php
+                                                $ayah = $item->orangTua->where('jenis_orang_tua', 'Ayah')->first();
+                                                $ibu = $item->orangTua->where('jenis_orang_tua', 'Ibu')->first();
+                                            @endphp
+
+                                            <!-- Data Ayah -->
+                                            <div class="mb-2">
                                                 <span class="font-semibold text-gray-600">Ayah:</span>
-                                                {{ $item->orangTua->where('jenis_orang_tua', 'Ayah')->first()->nama ?? '-' }}
+                                                @if($ayah)
+                                                    <span>{{ $ayah->nama }}</span>
+                                                    <span class="font-medium ml-1 {{ strtolower($ayah->status) == 'meninggal' ? 'text-red-600' : 'text-green-600' }}">
+                                                        ({{ $ayah->status_hidup }})
+                                                    </span>
+                                                @else
+                                                    <span>-</span>
+                                                @endif
                                             </div>
+                                            
+                                            <!-- Data Ibu -->
                                             <div>
                                                 <span class="font-semibold text-gray-600">Ibu:</span>
-                                                {{ $item->orangTua->where('jenis_orang_tua', 'Ibu')->first()->nama ?? '-' }}
+                                                @if($ibu)
+                                                    <span>{{ $ibu->nama }}</span>
+                                                    <span class="font-medium ml-1 {{ strtolower($ibu->status) == 'meninggal' ? 'text-red-600' : 'text-green-600' }}">
+                                                        ({{ $ibu->status_hidup }})
+                                                    </span>
+                                                @else
+                                                    <span>-</span>
+                                                @endif
                                             </div>
                                         </td>
 

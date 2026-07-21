@@ -3,7 +3,7 @@
         <h3 class="text-lg font-bold text-[#0b1c30]">1. Biodata Anak</h3>
     </div>
 
-    <div class="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
 
         <div>
             <x-input-label for="nama_lengkap" class="text-[#434655] font-semibold">

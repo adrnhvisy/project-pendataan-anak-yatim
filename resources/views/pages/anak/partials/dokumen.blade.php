@@ -98,7 +98,7 @@
                                   hover:file:bg-[#dce9ff] 
                                   border border-[#E2E8F0] rounded-lg cursor-pointer bg-gray-50 
                                   focus:outline-none focus:border-[#004ac6] focus:ring-[#004ac6]" 
-                           {{ ($kategori->is_wajib && !$existingFile) ? 'required' : '' }}>
+                           {{ ($kategori->is_wajib && !$existingFile) ? : '' }}>
                 </div>
                 
                 <p class="text-[11px] text-gray-400 mt-2">Format: PDF, JPG, PNG. Maks: 3MB.</p>

@@ -20,7 +20,23 @@ class AnakController extends Controller
     {
         $user = $request->user();
         $query = Anak::with(['alamatDomisili.kelurahan', 'orangTua', 'pembuatData'])->latest();
-        $kelurahans = Kelurahan::orderBy('nama_kelurahan', 'asc')->get();
+
+        // --- PERBAIKAN ISI DROPDOWN KELURAHAN ---
+        $kelurahanQuery = \App\Models\Kelurahan::orderBy('nama_kelurahan', 'asc');
+
+        if ($user->hasRole('kecamatan') && $user->kecamatan_id) {
+            // Jika Kecamatan, hanya ambil kelurahan di kecamatannya
+            $kelurahanQuery->where('kecamatan_id', $user->kecamatan_id);
+        } elseif ($user->hasRole('kesra') && $user->kabupaten_id) {
+            // Jika Kesra, ambil semua kelurahan di kabupatennya
+            $kelurahanQuery->whereHas('kecamatan', function ($q) use ($user) {
+                $q->where('kabupaten_id', $user->kabupaten_id);
+            });
+        }
+
+        // Eksekusi query untuk mendapatkan list dropdown
+        $kelurahans = $kelurahanQuery->get();
+        // ----------------------------------------
 
         // --- PERBAIKAN FILTER KELURAHAN ---
         // Menggunakan whereHas untuk mencari kelurahan_id melalui tabel relasi alamatDomisili
@@ -54,7 +70,9 @@ class AnakController extends Controller
             } else {
                 $query->whereRaw('1 = 0');
             }
-        } elseif ($user->hasRole('kecamatan')) {
+        }
+        // Filter untuk Kecamatan
+        elseif ($user->hasRole('kecamatan')) {
             if ($user->kecamatan_id) {
                 $query->whereHas('alamatDomisili.kelurahan.kecamatan', function ($q) use ($user) {
                     $q->where('kecamatan_id', $user->kecamatan_id);
@@ -64,7 +82,7 @@ class AnakController extends Controller
             }
         }
 
-        // Pencarian
+        // Pencarian Text (NIK atau Nama)
         $query->when($request->filled('search'), function ($q) use ($request) {
             $searchTerm = $request->search;
             $q->where(function ($query) use ($searchTerm) {
@@ -74,6 +92,7 @@ class AnakController extends Controller
         });
 
         $anak = $query->paginate(10)->withQueryString();
+
         return view('pages.anak.index', compact('anak', 'kelurahans'));
     }
 

@@ -74,7 +74,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [LaporanController::class, 'index'])->name('index');
         Route::get('/anak', [LaporanController::class, 'anak'])->name('anak');
         Route::get('/wilayah', [LaporanController::class, 'wilayah'])->name('wilayah');
-        // Route::get('/print', [LaporanController::class, 'print'])->name('print');
+        Route::get('/get-stats', [LaporanController::class, 'getStats'])->name('get-stats');
     });
 
     // ==========================================
